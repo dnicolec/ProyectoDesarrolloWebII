@@ -39,7 +39,7 @@ const Navbar = ({ user, onLogout }) => {
                 </Link>
                 <div className="h-5 w-px bg-cream" />
                 <span className="text-sm text-navy/50">
-                  Hola, <span className="font-semibold text-navy">{user.firstName}</span>
+                  Hola, {useNavigate} <span className="font-semibold text-navy">{user.firstName}</span>
                 </span>
                 <Button variant="ghost" size="sm" onClick={onLogout}>
                   Cerrar sesión

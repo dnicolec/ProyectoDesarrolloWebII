@@ -13,9 +13,9 @@ export default function VerifyPage() {
     setErr("");
     try {
       await authService.resendVerificationEmail();
-      setMsg("Te reenviamos el correo de verificación. Revisá inbox/spam.");
+      setMsg("Te reenviamos el correo de verificación. Por favor revisa tu inbox o spam.");
     } catch (e) {
-      setErr("No se pudo reenviar. Iniciá sesión primero.");
+      setErr("No se pudo reenviar. Debes iniciar sesión primero.");
     }
   };
 
@@ -33,18 +33,18 @@ export default function VerifyPage() {
       if (auth.currentUser.emailVerified) {
         navigate("/");
       } else {
-        setErr("Aún no aparece verificada. Esperá un momento y probá otra vez.");
+        setErr("Tu cuenta aún no se encuentra verificada. Esperá un momento e intenta de nuevo.");
       }
     } catch (e) {
-      setErr("No se pudo comprobar la verificación.");
+      setErr("No se pudo comprobar la verificación de tu cuenta.");
     }
   };
 
   return (
     <div className="container-app py-10 max-w-md mx-auto">
-      <h1 className="text-2xl font-semibold">Verificá tu correo</h1>
+      <h1 className="text-2xl font-semibold">Verifica tu correo</h1>
       <p className="text-sm opacity-70 mt-1">
-        Te enviamos un email para activar tu cuenta.
+        Te enviamos un email para que actives tu cuenta.
       </p>
 
       {err && <div className="mt-4 rounded-lg border p-3 text-sm">{err}</div>}
@@ -55,7 +55,7 @@ export default function VerifyPage() {
           Reenviar verificación
         </button>
         <button className="w-full rounded-lg border p-2" onClick={iVerified}>
-          Ya verifiqué
+          Mi cuenta ha sido verificada
         </button>
       </div>
 

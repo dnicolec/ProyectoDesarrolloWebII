@@ -19,14 +19,14 @@ export default function RegisterPage() {
     setServerError("");
     try {
       await authService.register(data);
-      navigate("/verify"); // la creamos en el siguiente paso
+      navigate("/verify"); //Dirigir hacia la pagina de verificación de cuenta
     } catch (e) {
       const msg =
         e?.code === "auth/email-already-in-use"
-          ? "Ese correo ya está registrado."
+          ? "Lo sentimos, este correo ya se encuentra registrado."
           : e?.code === "auth/weak-password"
           ? "Contraseña muy débil."
-          : "No se pudo registrar. Intenta de nuevo.";
+          : "No se pudo realizar el registro. Por favor intenta de nuevo.";
       setServerError(msg);
     }
   };
@@ -56,11 +56,11 @@ export default function RegisterPage() {
             className="w-full rounded-lg border p-2"
             {...register("telefono")}
             inputMode="numeric"
-            placeholder="77778888"
+            placeholder="1234-5678"
           />
         </Field>
 
-        <Field label="Correo" error={errors.correo?.message}>
+        <Field label="Correo electrónico" error={errors.correo?.message}>
           <input
             className="w-full rounded-lg border p-2"
             {...register("correo")}
@@ -87,7 +87,9 @@ export default function RegisterPage() {
         </Field>
 
         <button
-          disabled={isSubmitting}
+        disabled={isSubmitting}
+        variant="primary"
+        size="lg"
           className="w-full rounded-lg border p-2 font-medium"
           type="submit"
         >
