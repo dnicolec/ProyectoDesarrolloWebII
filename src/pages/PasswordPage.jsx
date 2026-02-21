@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { authService } from "../services/authService";
+import { Button } from "../components/ui";
 
 export default function PasswordPage() {
   const [correo, setCorreo] = useState("");
@@ -32,9 +33,9 @@ export default function PasswordPage() {
 
   return (
     <div className="container-app py-10 max-w-md mx-auto">
-      <h1 className="text-2xl font-semibold">Recuperar y cambiar contraseña</h1>
+      <h1 className="text-3xl font-Fraunces font-semibold">Recuperar y cambiar contraseña</h1>
       <p className="text-sm opacity-70 mt-1">
-        Ingresa tu correo y te enviaremos un enlace para que puedas restablecer tu contraseña.
+        Ingresa tu correo para que puedas restablecer tu contraseña.
       </p>
 
       {err && <div className="mt-4 rounded-lg border p-3 text-sm">{err}</div>}
@@ -53,17 +54,19 @@ export default function PasswordPage() {
           />
         </div>
 
-        <button
+        <Button
+          variant="primary"
+          size="md"
           disabled={loading}
           className="w-full rounded-lg border p-2 font-medium"
           type="submit"
         >
           {loading ? "Enviando..." : "Enviar enlace"}
-        </button>
+        </Button>
 
-        <p className="text-sm opacity-70">
+        <p className="text-sm opacity-90">
           Volver a{" "}
-          <Link className="underline" to="/login">
+          <Link className="text-sm opacity-90 hover:text-teal-hover transition-colors" to="/login">
             iniciar sesión
           </Link>
         </p>

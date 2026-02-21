@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { auth } from "../lib/firebase";
 import { authService } from "../services/authService";
+import { Button } from "../components/ui";
 
 export default function VerifyPage() {
   const navigate = useNavigate();
@@ -42,8 +43,8 @@ export default function VerifyPage() {
 
   return (
     <div className="container-app py-10 max-w-md mx-auto">
-      <h1 className="text-2xl font-semibold">Verifica tu correo</h1>
-      <p className="text-sm opacity-70 mt-1">
+      <h1 className="text-3xl font-Fraunces font-semibold">Verifica tu correo</h1>
+      <p className="text-sm opacity-70 mt-1 font-sans-serif">
         Te enviamos un email para que actives tu cuenta.
       </p>
 
@@ -51,17 +52,26 @@ export default function VerifyPage() {
       {msg && <div className="mt-4 rounded-lg border p-3 text-sm">{msg}</div>}
 
       <div className="mt-6 space-y-3">
-        <button className="w-full rounded-lg border p-2" onClick={resend}>
+        <Button 
+        variant="primary"
+        size="sm"
+        className="w-full rounded-lg border p-2" 
+        onClick={resend}>
           Reenviar verificación
-        </button>
-        <button className="w-full rounded-lg border p-2" onClick={iVerified}>
+        </Button>
+        <Button 
+        variant="primary"
+        size="sm"
+        className="w-full rounded-lg border p-2" 
+        onClick={iVerified}
+        >
           Mi cuenta ha sido verificada
-        </button>
+        </Button>
       </div>
 
-      <p className="text-sm opacity-70 mt-6">
+      <p className="text-sm opacity-90 mt-6">
         Volver a{" "}
-        <Link className="underline" to="/login">
+        <Link className="text-sm opacity-90 hover:text-teal-hover transition-colors" to="/login">
           iniciar sesión
         </Link>
       </p>

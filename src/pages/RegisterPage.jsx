@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "../validations/registerSchema";
 import { authService } from "../services/authService";
 import { Link, useNavigate } from "react-router-dom";
+import { Button } from "../components/ui";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -33,9 +34,9 @@ export default function RegisterPage() {
 
   return (
     <div className="container-app py-10 max-w-md mx-auto">
-      <h1 className="text-2xl font-semibold">Crear cuenta</h1>
-      <p className="text-sm opacity-70 mt-1">
-        Te enviaremos un correo para verificar tu cuenta.
+      <h1 className="text-4xl font-Fraunces font-semibold">Crear cuenta</h1>
+      <p className="text-sm opacity-70 mt-1 font-sans-serif">
+        Te enviaremos un correo cuando llenes el registro para verificar tu cuenta.
       </p>
 
       {serverError && (
@@ -44,16 +45,16 @@ export default function RegisterPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
         <Field label="Nombre" error={errors.nombre?.message}>
-          <input className="w-full rounded-lg border p-2" {...register("nombre")} />
+          <input className="w-full rounded-lg border p-2 font-sans-serif" {...register("nombre")} />
         </Field>
 
         <Field label="Apellido" error={errors.apellido?.message}>
-          <input className="w-full rounded-lg border p-2" {...register("apellido")} />
+          <input className="w-full rounded-lg border p-2 font-sans-serif" {...register("apellido")} />
         </Field>
 
         <Field label="Teléfono (8 dígitos)" error={errors.telefono?.message}>
           <input
-            className="w-full rounded-lg border p-2"
+            className="w-full rounded-lg border p-2 font-sans-serif"
             {...register("telefono")}
             inputMode="numeric"
             placeholder="1234-5678"
@@ -62,7 +63,7 @@ export default function RegisterPage() {
 
         <Field label="Correo electrónico" error={errors.correo?.message}>
           <input
-            className="w-full rounded-lg border p-2"
+            className="w-full rounded-lg border p-2 font-sans-serif"
             {...register("correo")}
             type="email"
             autoComplete="email"
@@ -70,36 +71,36 @@ export default function RegisterPage() {
         </Field>
 
         <Field label="Dirección" error={errors.direccion?.message}>
-          <input className="w-full rounded-lg border p-2" {...register("direccion")} />
+          <input className="w-full rounded-lg border p-2 font-sans-serif" {...register("direccion")} />
         </Field>
 
         <Field label="DUI (00000000-0)" error={errors.dui?.message}>
-          <input className="w-full rounded-lg border p-2" {...register("dui")} placeholder="01234567-8" />
+          <input className="w-full rounded-lg border p-2 font-sans-serif" {...register("dui")} placeholder="01234567-8" />
         </Field>
 
-        <Field label="Contraseña" error={errors.password?.message}>
+        <Field label="Contraseña (minímo 6 caracteres)" error={errors.password?.message}>
           <input
-            className="w-full rounded-lg border p-2"
+            className="w-full rounded-lg border p-2 font-sans-serif"
             {...register("password")}
             type="password"
             autoComplete="new-password"
           />
         </Field>
 
-        <button
+        <Button
         disabled={isSubmitting}
         variant="primary"
-        size="lg"
+        size="md"
           className="w-full rounded-lg border p-2 font-medium"
           type="submit"
         >
           {isSubmitting ? "Creando..." : "Crear cuenta"}
-        </button>
+        </Button>
 
-        <p className="text-sm opacity-70">
+        <p className="text-sm opacity-90">
           ¿Ya tenés cuenta?{" "}
-          <Link className="underline" to="/login">
-            Iniciar sesión
+          <Link className="text-sm opacity-90 hover:text-teal-hover transition-colors" to="/login">
+            Inicia sesión
           </Link>
         </p>
       </form>
