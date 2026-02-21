@@ -1,118 +1,214 @@
 import { useState } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import { registerSchema } from "../validations/registerSchema";
 import { authService } from "../services/authService";
-import { Link, useNavigate } from "react-router-dom";
 
-export default function RegisterPage() {
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import Alert from "../components/ui/Alert";
+import EyeIcon from "../components/ui/icons/EyeIcon";
+import EyeOffIcon from "../components/ui/icons/EyeOffIcon";
+
+const RegisterPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState("");
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(registerSchema) });
+  } = useForm({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      nombre: "",
+      apellido: "",
+      telefono: "",
+      correo: "",
+      direccion: "",
+      dui: "",
+      password: "",
+    },
+  });
 
   const onSubmit = async (data) => {
     setServerError("");
+
     try {
       await authService.register(data);
-      navigate("/verify"); //Dirigir hacia la pagina de verificación de cuenta
+      navigate("/verify");
     } catch (e) {
-      const msg =
-        e?.code === "auth/email-already-in-use"
-          ? "Lo sentimos, este correo ya se encuentra registrado."
-          : e?.code === "auth/weak-password"
-          ? "Contraseña muy débil."
-          : "No se pudo realizar el registro. Por favor intenta de nuevo.";
+      let msg = "No se pudo realizar el registro. Por favor intenta de nuevo.";
+
+      if (e?.code === "auth/email-already-in-use") {
+        msg = "Lo sentimos, este correo ya se encuentra registrado.";
+      } else if (e?.code === "auth/weak-password") {
+        msg = "Contraseña muy débil.";
+      } else if (e?.code === "auth/invalid-email") {
+        msg = "Correo inválido.";
+      } else if (e?.code === "auth/too-many-requests") {
+        msg = "Demasiados intentos. Intenta más tarde.";
+      }
+
       setServerError(msg);
     }
   };
 
   return (
     <div className="container-app py-10 max-w-md mx-auto">
-      <h1 className="text-2xl font-semibold">Crear cuenta</h1>
+      <h1 className="text-4xl font-semibold font-Fraunces">Crear cuenta</h1>
       <p className="text-sm opacity-70 mt-1">
         Te enviaremos un correo para verificar tu cuenta.
       </p>
 
       {serverError && (
-        <div className="mt-4 rounded-lg border p-3 text-sm">{serverError}</div>
+        <Alert type="error" className="mt-4">
+          {serverError}
+        </Alert>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
-        <Field label="Nombre" error={errors.nombre?.message}>
-          <input className="w-full rounded-lg border p-2" {...register("nombre")} />
-        </Field>
-
-        <Field label="Apellido" error={errors.apellido?.message}>
-          <input className="w-full rounded-lg border p-2" {...register("apellido")} />
-        </Field>
-
-        <Field label="Teléfono (8 dígitos)" error={errors.telefono?.message}>
-          <input
-            className="w-full rounded-lg border p-2"
-            {...register("telefono")}
-            inputMode="numeric"
-            placeholder="1234-5678"
+        <div>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Nombre
+          </label>
+          <Input
+            placeholder="Tu nombre"
+            disabled={isSubmitting}
+            {...register("nombre")}
           />
-        </Field>
+          {errors.nombre?.message && (
+            <p className="text-sm mt-1 text-red-600">{errors.nombre.message}</p>
+          )}
+        </div>
 
-        <Field label="Correo electrónico" error={errors.correo?.message}>
-          <input
-            className="w-full rounded-lg border p-2"
-            {...register("correo")}
+        <div>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Apellido
+          </label>
+          <Input
+            placeholder="Tu apellido"
+            disabled={isSubmitting}
+            {...register("apellido")}
+          />
+          {errors.apellido?.message && (
+            <p className="text-sm mt-1 text-red-600">
+              {errors.apellido.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Teléfono (8 dígitos)
+          </label>
+          <Input
+            placeholder="1234-5678"
+            inputMode="numeric"
+            disabled={isSubmitting}
+            {...register("telefono")}
+          />
+          {errors.telefono?.message && (
+            <p className="text-sm mt-1 text-red-600">
+              {errors.telefono.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Correo electrónico
+          </label>
+          <Input
             type="email"
             autoComplete="email"
+            placeholder="tu@email.com"
+            disabled={isSubmitting}
+            {...register("correo")}
           />
-        </Field>
+          {errors.correo?.message && (
+            <p className="text-sm mt-1 text-red-600">{errors.correo.message}</p>
+          )}
+        </div>
 
-        <Field label="Dirección" error={errors.direccion?.message}>
-          <input className="w-full rounded-lg border p-2" {...register("direccion")} />
-        </Field>
-
-        <Field label="DUI (00000000-0)" error={errors.dui?.message}>
-          <input className="w-full rounded-lg border p-2" {...register("dui")} placeholder="01234567-8" />
-        </Field>
-
-        <Field label="Contraseña" error={errors.password?.message}>
-          <input
-            className="w-full rounded-lg border p-2"
-            {...register("password")}
-            type="password"
-            autoComplete="new-password"
+        <div>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Dirección
+          </label>
+          <Input
+            placeholder="Tu dirección"
+            disabled={isSubmitting}
+            {...register("direccion")}
           />
-        </Field>
+          {errors.direccion?.message && (
+            <p className="text-sm mt-1 text-red-600">
+              {errors.direccion.message}
+            </p>
+          )}
+        </div>
 
-        <button
-        disabled={isSubmitting}
-        variant="primary"
-        size="lg"
-          className="w-full rounded-lg border p-2 font-medium"
-          type="submit"
-        >
+        <div>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            DUI (00000000-0)
+          </label>
+          <Input
+            placeholder="01234567-8"
+            disabled={isSubmitting}
+            {...register("dui")}
+          />
+          {errors.dui?.message && (
+            <p className="text-sm mt-1 text-red-600">{errors.dui.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Contraseña
+          </label>
+
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              placeholder="••••••••"
+              disabled={isSubmitting}
+              {...register("password")}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-navy/50"
+              disabled={isSubmitting}
+            >
+              {showPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
+            </button>
+          </div>
+
+          {errors.password?.message && (
+            <p className="text-sm mt-1 text-red-600">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
+
+        <Button type="submit" disabled={isSubmitting} className="w-full mt-6">
           {isSubmitting ? "Creando..." : "Crear cuenta"}
-        </button>
+        </Button>
 
-        <p className="text-sm opacity-70">
-          ¿Ya tenés cuenta?{" "}
-          <Link className="underline" to="/login">
+        <p className="text-center text-sm text-navy/60 mt-6">
+          ¿Ya tienes cuenta?{" "}
+          <Link to="/login" className="text-teal font-semibold hover:underline">
             Iniciar sesión
           </Link>
         </p>
       </form>
     </div>
   );
-}
+};
 
-function Field({ label, error, children }) {
-  return (
-    <div>
-      <label className="text-sm">{label}</label>
-      <div className="mt-1">{children}</div>
-      {error && <p className="text-sm mt-1">{error}</p>}
-    </div>
-  );
-}
+export default RegisterPage;

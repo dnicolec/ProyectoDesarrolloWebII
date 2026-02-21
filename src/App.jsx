@@ -10,6 +10,8 @@ import RegisterPage from "./pages/RegisterPage";
 import OfferDetailPage from "./pages/OfferDetailPage";
 import MyCouponsPage from "./pages/MyCouponsPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import PasswordPage from "./pages/PasswordPage";
+import VerifyPage from "./pages/VerifyPage";
 
 function ProtectedRoute({ children, user, loading }) {
   const location = useLocation();
@@ -18,7 +20,7 @@ function ProtectedRoute({ children, user, loading }) {
       <div className="flex items-center justify-center min-h-screen">
         <p>Cargando...</p>
       </div>
-    );
+    );  
   }
   return user ? children : <Navigate to="/login" state={{ from: location.pathname }} />;
 }
@@ -69,8 +71,10 @@ function App() {
         </Route>
 
         {/* Rutas de autenticación */}
-        <Route path="/login" element={user ? <Navigate to="/" /> : <LoginPage />} />
-        <Route path="/register" element={user ? <Navigate to="/" /> : <RegisterPage />} />
+        <Route path="/login" element={user ? (user.emailVerified ? <Navigate to="/" replace /> : <Navigate to="/verify" replace />) : <LoginPage />} /> 
+        <Route path="/register" element={user ? (user.emailVerified ? <Navigate to="/" replace /> : <Navigate to="/verify" replace />) : <RegisterPage />} />
+        <Route path="/password" element={user ? (user.emailVerified ? <Navigate to="/" replace /> : <Navigate to="/verify" replace />) : <PasswordPage />} /><Route path="/verify" element={user?.emailVerified ? <Navigate to="/" replace /> : <VerifyPage />} />
+
 
         {/* Rutas protegidas */}
         <Route

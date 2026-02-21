@@ -2,6 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { authService } from "../services/authService";
 
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import Alert from "../components/ui/Alert";
+
 export default function PasswordPage() {
   const [correo, setCorreo] = useState("");
   const [msg, setMsg] = useState("");
@@ -16,7 +20,9 @@ export default function PasswordPage() {
 
     try {
       await authService.resetPassword(correo);
-      setMsg("Te enviamos un enlace para restablecer tu contraseña, por favor verifica tu correo.");
+      setMsg(
+        "Te enviamos un enlace para restablecer tu contraseña. Por favor verifica tu correo."
+      );
     } catch (e2) {
       const text =
         e2?.code === "auth/invalid-email"
@@ -32,38 +38,57 @@ export default function PasswordPage() {
 
   return (
     <div className="container-app py-10 max-w-md mx-auto">
-      <h1 className="text-2xl font-semibold">Recuperar y cambiar contraseña</h1>
+      <h1 className="text-3xl font-semibold">
+        Recuperar contraseña
+      </h1>
+
       <p className="text-sm opacity-70 mt-1">
-        Ingresa tu correo y te enviaremos un enlace para que puedas restablecer tu contraseña.
+        Ingresa tu correo para restablecer tu contraseña.
       </p>
 
-      {err && <div className="mt-4 rounded-lg border p-3 text-sm">{err}</div>}
-      {msg && <div className="mt-4 rounded-lg border p-3 text-sm">{msg}</div>}
+      {err && (
+        <Alert type="error" className="mt-4">
+          {err}
+        </Alert>
+      )}
+
+      {msg && (
+        <Alert type="success" className="mt-4">
+          {msg}
+        </Alert>
+      )}
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <div>
-          <label className="text-sm">Correo</label>
-          <input
-            className="w-full rounded-lg border p-2 mt-1"
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Correo electrónico
+          </label>
+
+          <Input
+            type="email"
+            placeholder="tu@email.com"
             value={correo}
             onChange={(e) => setCorreo(e.target.value)}
-            type="email"
+            disabled={loading}
             autoComplete="email"
             required
           />
         </div>
 
-        <button
-          disabled={loading}
-          className="w-full rounded-lg border p-2 font-medium"
+        <Button
           type="submit"
+          disabled={loading}
+          className="w-full mt-4"
         >
           {loading ? "Enviando..." : "Enviar enlace"}
-        </button>
+        </Button>
 
-        <p className="text-sm opacity-70">
+        <p className="text-center text-sm text-navy/60 mt-6">
           Volver a{" "}
-          <Link className="underline" to="/login">
+          <Link
+            to="/login"
+            className="text-teal font-semibold hover:underline"
+          >
             iniciar sesión
           </Link>
         </p>
