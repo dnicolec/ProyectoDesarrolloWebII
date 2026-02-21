@@ -10,7 +10,7 @@ import SearchIcon from "../components/ui/icons/SearchIcon";
 
 // MOCK DATA
 const MOCK_OFFERS = {
-  '1': { id:'1', title:'2x1 Main Dish', regularPrice:25, offerPrice:12.5, startDate:'2025-02-01', endDate:'2025-03-15', couponDeadline:'2025-03-30', couponLimit:100, couponsSold:37, description:'Disfruta de un delicioso plato fuerte con acompañante completamente gratis', details:'Válido de lunes a viernes', category:'Restaurantes', companyName:'El Buen Sabor Restaurant', companyAddress:'Blvd. Los Héroes #123, San Salvador', companyPhone:'1111-2222', imageUrl:null },
+  '1': { id:'1', title:'2x1 Main Dish', regularPrice:25, offerPrice:12.5, startDate:'2025-02-01', endDate:'2026-03-15', couponDeadline:'2025-03-30', couponLimit:2, couponsSold:0, description:'Disfruta de un delicioso plato fuerte con acompañante completamente gratis', details:'Válido de lunes a viernes', category:'Restaurantes', companyName:'El Buen Sabor Restaurant', companyAddress:'Blvd. Los Héroes #123, San Salvador', companyPhone:'1111-2222', imageUrl:null, status: 'approved' },
 };
 //
 
@@ -108,6 +108,10 @@ const OfferDetailPage = ({ user }) => {
 
   const handlePurchase = () =>{
     if (!user) return;
+    if (availableCoupons !== null && quantity > availableCoupons) {
+      alert(`No hay suficientes cupones disponibles. Solo quedan ${availableCoupons}.`);
+      return; 
+    }
     setShowPaymentForm(true);
     }
 
@@ -122,12 +126,7 @@ const OfferDetailPage = ({ user }) => {
       return;
     }
 
-    if (availableCoupons !== null && quantity > availableCoupons) {
-      alert(`No hay suficientes cupones disponibles. Solo quedan ${availableCoupons}.`);
-      return; 
-    }
-
-    setShowPaymentForm(false);
+    
 
     const newCoupons = [];
     for (let i = 0; i < quantity; i++) {
@@ -147,6 +146,7 @@ const OfferDetailPage = ({ user }) => {
     setQuantity(1);
 
     alert('Compra exitosa! Se ha enviado un correo de confirmación.');
+    setShowPaymentForm(false);
     
   }
 
