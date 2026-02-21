@@ -19,7 +19,7 @@ const MOCK_OFFERS = [
     regularPrice: 25.0,
     offerPrice: 12.5,
     startDate: '2025-02-01',
-    endDate: '2025-03-15',
+    endDate: '2026-03-15',
     couponDeadline: '2025-03-30',
     couponLimit: 100,
     couponsSold: 37,
@@ -32,6 +32,7 @@ const MOCK_OFFERS = [
     companyAddress: 'Blvd. Los Héroes #123, San Salvador',
     companyPhone: '1111-2222',
     imageUrl: null,
+    status: 'approved',
   },
 ];
 //
