@@ -29,11 +29,11 @@ const LoginPage = () => {
   };
 
   const blockIfNotVerified = async (user) => {
-    // A veces conviene refrescar el user antes de revisar
+
     await user.reload();
 
     if (!user.emailVerified) {
-      await signOut(auth); // IMPORTANT: lo saca para que no quede logueado
+      await signOut(auth);
       navigate("/verify", { state: { email: user.email, from: location.state?.from || "/" } });
       throw new Error("not-verified");
     }
