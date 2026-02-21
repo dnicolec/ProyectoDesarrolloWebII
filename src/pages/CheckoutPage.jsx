@@ -39,10 +39,7 @@ const CheckoutPage = () => {
       <div className="flex justify-center">
         <div className="w-full max-w-md">
           <div className="bg-cream-bg rounded-2xl border border-cream p-6 space-y-5">
-
-            <Badge variant="cream">
-              Checkout
-            </Badge>
+            <Badge variant="cream">Checkout</Badge>
 
             <h1 className="font-serif text-2xl font-extrabold text-navy">
               Finalizar compra
@@ -50,14 +47,14 @@ const CheckoutPage = () => {
 
             {/* Resumen */}
             <div className="space-y-2 text-navy/70 text-sm border-b border-cream pb-4">
-                 <div className="flex justify-between">
-                    <span>Categoría</span>
-                    <span>{offer.category}</span>
-                </div>
-                <div className="flex justify-between">
-                    <span>Tienda</span>
-                    <span className="text-right">{offer.companyName}</span>
-                </div>
+              <div className="flex justify-between">
+                <span>Categoría</span>
+                <span>{offer.category}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Tienda</span>
+                <span className="text-right">{offer.companyName}</span>
+              </div>
               <div className="flex justify-between">
                 <span>Oferta</span>
                 <span className="text-right">{offer.title}</span>
@@ -65,7 +62,7 @@ const CheckoutPage = () => {
               <div className="flex justify-between">
                 <span>Precio individual</span>
                 <span>${offer.offerPrice.toFixed(2)}</span>
-            </div>
+              </div>
 
               <div className="flex justify-between">
                 <span>Cantidad</span>
@@ -80,7 +77,6 @@ const CheckoutPage = () => {
 
             {/* Formulario */}
             <form onSubmit={handlePayment} className="space-y-4">
-
               <div>
                 <label className="block text-xs text-navy/50 mb-1">
                   Número de tarjeta
@@ -107,9 +103,7 @@ const CheckoutPage = () => {
                 </div>
 
                 <div className="w-1/2">
-                  <label className="block text-xs text-navy/50 mb-1">
-                    CVV
-                  </label>
+                  <label className="block text-xs text-navy/50 mb-1">CVV</label>
                   <input
                     type="text"
                     value={cvv}
@@ -122,7 +116,6 @@ const CheckoutPage = () => {
               <Button fullWidth size="lg" type="submit">
                 Pagar ${total.toFixed(2)}
               </Button>
-
             </form>
           </div>
         </div>
