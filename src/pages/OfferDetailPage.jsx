@@ -34,6 +34,12 @@ const OfferDetailPage = ({ user }) => {
   const [offer, setOffer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [cvv, setCvv] = useState('');
+
+  const [purchasedCoupons, setPurchasedCoupons] = useState([]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -99,6 +105,50 @@ const OfferDetailPage = ({ user }) => {
       month: 'long',
       day: 'numeric',
     });
+
+  const handlePurchase = () =>{
+    if (!user) return;
+    setShowPaymentForm(true);
+    }
+
+
+  const handlePaymentSubmit = () => {
+    if (!cardNumber || !expiryDate || !cvv) {
+    alert('Por favor completa todos los campos de pago.');
+    return;
+    }
+    if (cardNumber.length < 16 || cvv.length < 3) {
+      alert('Número de tarjeta o CVV inválido.');
+      return;
+    }
+
+    if (availableCoupons !== null && quantity > availableCoupons) {
+      alert(`No hay suficientes cupones disponibles. Solo quedan ${availableCoupons}.`);
+      return; 
+    }
+
+    setShowPaymentForm(false);
+
+    const newCoupons = [];
+    for (let i = 0; i < quantity; i++) {
+      const randomNumber = Math.floor(Math.random() * 10 ** 7)
+        .toString()
+        .padStart(7, '0');
+      const code = `${offer.companyCode || 'ABC'}${randomNumber}`;
+      newCoupons.push(code);
+    }
+
+    setOffer((prev) => ({
+      ...prev,
+      couponsSold: prev.couponsSold + quantity,
+    }));
+
+    setPurchasedCoupons((prev) => [...prev, ...newCoupons]);
+    setQuantity(1);
+
+    alert('Compra exitosa! Se ha enviado un correo de confirmación.');
+    
+  }
 
   return (
     <div className="container-app py-8">
@@ -194,9 +244,44 @@ const OfferDetailPage = ({ user }) => {
             </div>
 
             {user ? (
-              <Button fullWidth size="lg">
-                Buy {quantity > 1 ? `${quantity} coupons` : 'coupon'}
+              <>
+              <Button fullWidth size="lg" onClick={handlePurchase}>
+                Comprar {quantity > 1 ? `${quantity} cupones` : 'cupón'}
               </Button>
+
+              {showPaymentForm && (
+                  <div className="mt-6 space-y-4 p-4 border border-cream rounded-xl bg-white">
+                    <h3 className="font-semibold text-navy text-lg">Pago con tarjeta de crédito</h3>
+                    <input
+                      type="text"
+                      placeholder="Número de tarjeta"
+                      value={cardNumber}
+                      onChange={(e) => setCardNumber(e.target.value)}
+                      className="w-full border rounded px-3 py-2"
+                    />
+                    <input
+                      type="text"
+                      placeholder="MM/AA"
+                      value={expiryDate}
+                      onChange={(e) => setExpiryDate(e.target.value)}
+                      className="w-full border rounded px-3 py-2"
+                    />
+                    <input
+                      type="text"
+                      placeholder="CVV"
+                      value={cvv}
+                      onChange={(e) => setCvv(e.target.value)}
+                      className="w-full border rounded px-3 py-2"
+                    />
+                    <Button fullWidth size="md" onClick={handlePaymentSubmit}>
+                      Pagar
+                    </Button>
+                  </div>
+                )}
+
+              </>
+
+
             ) : (
               <div className="space-y-3">
                 <Alert type="info">
