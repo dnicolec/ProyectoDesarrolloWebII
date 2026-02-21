@@ -14,7 +14,8 @@ export default function VerifyPage() {
     try {
       await authService.resendVerificationEmail();
       setMsg("Te reenviamos el correo de verificación. Revisá inbox/spam.");
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       setErr("No se pudo reenviar. Iniciá sesión primero.");
     }
   };
@@ -35,7 +36,8 @@ export default function VerifyPage() {
       } else {
         setErr("Aún no aparece verificada. Esperá un momento y probá otra vez.");
       }
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       setErr("No se pudo comprobar la verificación.");
     }
   };
