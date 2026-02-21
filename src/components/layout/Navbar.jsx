@@ -39,7 +39,7 @@ const Navbar = ({ user, onLogout }) => {
                 </Link>
                 <div className="h-5 w-px bg-cream" />
                 <span className="text-sm text-navy/50">
-                  Hola, <span className="font-semibold text-navy">{user.displayName || user.email?.split('@')[0]}</span>
+                  Hola, {useNavigate} <span className="font-semibold text-navy">{user.firstName}</span>
                 </span>
                 <Button variant="ghost" size="sm" onClick={onLogout}>
                   Cerrar sesión
@@ -99,7 +99,7 @@ const Navbar = ({ user, onLogout }) => {
                 </Link>
                 <div className="px-3 pt-2 border-t border-cream">
                   <p className="text-sm text-navy/50 mb-2">
-                    {user.displayName || user.email?.split('@')[0]}
+                    {user.firstName} {user.lastName}
                   </p>
                   <Button
                     variant="ghost"
