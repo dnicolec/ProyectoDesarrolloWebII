@@ -1,59 +1,88 @@
-//import { useState } from "react";
-
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Layout from './components/layout/Layout';
-import ScrollToTop from './components/layout/ScrollTop';
-import HomePage from './pages/HomePage';
-import OfferDetailPage from './pages/OfferDetailPage';
-import NotFoundPage from './pages/NotFoundPage';
-import MyCouponsPage from './pages/MyCouponsPage';////////////////
-import  CouponDetailPage  from './pages/MyCouponsPage';
-import CheckoutPage from './pages/CheckoutPage';
-
-//Auth
+import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./lib/firebase";
+import Layout from "./components/layout/Layout";
+import ScrollToTop from "./components/layout/ScrollTop";
+import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import OfferDetailPage from "./pages/OfferDetailPage";
+import MyCouponsPage from "./pages/MyCouponsPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
-//Verify
-import VerifyPage from './pages/VerifyPage';
-
-//Restablecer contraseña
-import PasswordPage from './pages/PasswordPage';
-
-import { useAuth } from './context/AuthContext';
-import { authService } from './services/authService';
-
-const Placeholder = ({ title }) => (
-  <div className="container-app py-20 text-center">
-    <h2 className="font-serif text-xl sm:text-2xl text-navy/40">{title}</h2>
-    <p className="text-sm text-navy/30 mt-2"></p>
-  </div>
-);
+function ProtectedRoute({ children, user, loading }) {
+  const location = useLocation();
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p>Cargando...</p>
+      </div>
+    );
+  }
+  return user ? children : <Navigate to="/login" state={{ from: location.pathname }} />;
+}
 
 function App() {
-  const { user } = useAuth ();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleLogout = async() => {
-    await authService.logout();
+  // Monitorear cambios de autenticación
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
   };
+
+  // Componente para rutas protegidas definido fuera de App para evitar crear
+  // componentes durante el render.
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p>Cargando...</p>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
+        {/* Rutas públicas */}
         <Route element={<Layout user={user} onLogout={handleLogout} />}>
-          {/* Catalog */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/offer/:id" element={<OfferDetailPage user={{id:1, name:"Test user"}} />} />
-          <Route path="/checkout" element={<CheckoutPage />} /> 
-          <Route path="/my-coupons" element={<MyCouponsPage />} />
-          <Route
-            path="/coupon/:id"
-            element={<CouponDetailPage user={user} />}
-          />
-          {/* 404 */}
+          <Route path="/offer/:id" element={<OfferDetailPage user={user} />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
+
+        {/* Rutas de autenticación */}
+        <Route path="/login" element={user ? <Navigate to="/" /> : <LoginPage />} />
+        <Route path="/register" element={user ? <Navigate to="/" /> : <RegisterPage />} />
+
+        {/* Rutas protegidas */}
+        <Route
+          path="/my-coupons"
+          element={
+            <Layout user={user} onLogout={handleLogout}>
+              <ProtectedRoute user={user} loading={loading}>
+                <MyCouponsPage />
+              </ProtectedRoute>
+            </Layout>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

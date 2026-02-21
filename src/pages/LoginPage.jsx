@@ -1,40 +1,60 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { authService } from "../services/authService";
+import { useState } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from '../lib/firebase';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Alert from '../components/ui/Alert';
+import EyeIcon from '../components/ui/icons/EyeIcon';
+import EyeOffIcon from '../components/ui/icons/EyeOffIcon';
 
-export default function LoginPage() {
-  const navigate = useNavigate();
-  const [correo, setCorreo] = useState("");
-  const [password, setPassword] = useState("");
-  const [serverError, setServerError] = useState("");
+const LoginPage = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const onSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setServerError("");
+    setError('');
     setLoading(true);
 
     try {
-      const user = await authService.login(correo, password);
-
-      // Si no verificó correo debe volver a iniciar sesión 
-      if (!user.emailVerified) {
-        await authService.logout();
-        navigate("/verify");
-        return;
+      if (!email || !password) {
+        throw new Error('Por favor completa todos los campos');
       }
 
-      navigate("/"); 
-    } catch (e2) {
-      const msg =
-        e2?.code === "auth/invalid-credential"
-          ? "Correo o contraseña incorrectos."
-          : e2?.code === "auth/too-many-requests"
-          ? "Demasiados intentos. Probá más tarde."
-          : e2?.code === "auth/network-request-failed"
-          ? "Problema de red. Revisá tu conexión."
-          : "No se pudo iniciar sesión.";
-      setServerError(msg);
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate(location.state?.from || '/');
+    } catch (err) {
+      let mensaje = 'Error al ingresar';
+      if (err.code === 'auth/invalid-credential') {
+        mensaje = 'Email o contraseña incorrectos';
+      } else if (err.code === 'auth/user-not-found') {
+        mensaje = 'Usuario no registrado';
+      } else if (err.code === 'auth/too-many-requests') {
+        mensaje = 'Demasiados intentos. Intenta más tarde';
+      }
+      setError(mensaje);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      navigate(location.state?.from || '/');
+    } catch (err) {
+      console.error('Error con Google:', err);
+      setError('Error al ingresar con Google');
     } finally {
       setLoading(false);
     }
@@ -43,54 +63,86 @@ export default function LoginPage() {
   return (
     <div className="container-app py-10 max-w-md mx-auto">
       <h1 className="text-2xl font-semibold">Iniciar sesión</h1>
-      <p className="text-sm opacity-70 mt-1">Entrá con tu correo y contraseña.</p>
+      <p className="text-sm opacity-70 mt-1">Ingresa tu correo y contraseña.</p>
 
-      {serverError && (
-        <div className="mt-4 rounded-lg border p-3 text-sm">{serverError}</div>
+      {error && (
+        <Alert type="error" className="mt-4">
+          {error}
+        </Alert>
       )}
 
-      <form onSubmit={onSubmit} className="mt-6 space-y-4">
+      <form onSubmit={handleLogin} className="mt-6 space-y-4">
         <div>
-          <label className="text-sm">Correo</label>
-          <input
-            className="w-full rounded-lg border p-2 mt-1"
-            value={correo}
-            onChange={(e) => setCorreo(e.target.value)}
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Correo
+          </label>
+          <Input
             type="email"
+            placeholder="tu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
             autoComplete="email"
             required
           />
         </div>
 
         <div>
-          <label className="text-sm">Contraseña</label>
-          <input
-            className="w-full rounded-lg border p-2 mt-1"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            autoComplete="current-password"
-            required
-          />
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Contraseña
+          </label>
+          <div className="relative">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-navy/50"
+            >
+              {showPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
+            </button>
+          </div>
         </div>
 
-        <button
-          disabled={loading}
-          className="w-full rounded-lg border p-2 font-medium"
+        <Button
           type="submit"
+          disabled={loading}
+          className="w-full mt-6"
         >
-          {loading ? "Entrando..." : "Entrar"}
-        </button>
-
-        <div className="flex items-center justify-between text-sm opacity-80">
-          <Link className="underline" to="/password">
-            ¿Olvidaste tu contraseña?
-          </Link>
-          <Link className="underline" to="/register">
-            Crear cuenta
-          </Link>
-        </div>
+          {loading ? 'Cargando...' : 'Ingresar'}
+        </Button>
       </form>
+
+      {/* Divider */}
+      <div className="flex items-center gap-3 my-6">
+        <div className="h-px bg-navy/20 flex-1" />
+        <span className="text-sm text-navy/50">O continúa con</span>
+        <div className="h-px bg-navy/20 flex-1" />
+      </div>
+
+      {/* Google Login */}
+      <button
+        onClick={handleGoogleLogin}
+        disabled={loading}
+        className="w-full border-2 border-navy/20 rounded-lg py-2 px-4 font-semibold text-navy hover:bg-navy/5 transition disabled:opacity-50"
+      >
+        Google
+      </button>
+
+      {/* Register Link */}
+      <p className="text-center text-sm text-navy/60 mt-6">
+        ¿No tienes cuenta?{' '}
+        <Link to="/register" className="text-coral font-semibold hover:underline">
+          Regístrate aquí
+        </Link>
+      </p>
     </div>
   );
-}
+};
+
+export default LoginPage;

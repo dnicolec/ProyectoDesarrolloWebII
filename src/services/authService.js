@@ -18,14 +18,18 @@ export const authService = {
   async register({ nombre, apellido, telefono, correo, direccion, dui, password }) {
     const cred = await createUserWithEmailAndPassword(auth, correo, password);
 
-    await setDoc(doc(db, "clientes", cred.user.uid), {
+    await setDoc(doc(db, "usuarios", cred.user.uid), {
+      uid: cred.user.uid,
       nombre,
       apellido,
       telefono,
       correo,
       direccion,
       dui,
+      role: 'usuario',
+      cupones: [],
       createdAt: serverTimestamp(),
+      photoURL: null
     });
 
     await sendEmailVerification(cred.user);

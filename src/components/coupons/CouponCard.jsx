@@ -7,37 +7,36 @@ import EntertainmentIcon from "../ui/icons/EntertainmentIcon";
 import ClothingStoreIcon from "../ui/icons/ClothingStoreIcon";
 
 const categoryGradients = {
-  Restaurants: "from-coral to-[#ffb3ae]",
-  "Veterinary Clinics": "from-sage to-[#b8d9c9]",
-  Entertainment: "from-teal to-[#5fc8c8]",
-  "Clothing Stores": "from-navy to-[#2e5a8a]",
+  restaurant: "from-coral to-[#ffb3ae]",
+  veterinary: "from-sage to-[#b8d9c9]",
+  entertainment: "from-teal to-[#5fc8c8]",
+  clothing: "from-navy to-[#2e5a8a]",
 };
 
 const categoryIcons = {
-  Restaurants: RestaurantIcon,
-  "Veterinary Clinics": VeterinaryIcon,
-  Entertainment: EntertainmentIcon,
-  "Clothing Stores": ClothingStoreIcon,
+  restaurant: RestaurantIcon,
+  veterinary: VeterinaryIcon,
+  entertainment: EntertainmentIcon,
+  clothing: ClothingStoreIcon,
 };
 
 const statusConfig = {
-  disponible: { variant: "teal", label: "Disponible" },
-  canjeado: { variant: "navy", label: "Canjeado" },
-  vencido: { variant: "coral", label: "Vencido" },
+  asignado: { variant: "teal",  label: "Disponible" },
+  canjeado: { variant: "navy",  label: "Canjeado"   },
+  vencido:  { variant: "coral", label: "Vencido"    },
 };
 
 const CouponCard = ({ coupon }) => {
   const navigate = useNavigate();
 
-  // configuración para estado
   const config = statusConfig[coupon.status] || {
     variant: "cream",
     label: coupon.status,
   };
 
-  const daysLeft = Math.ceil(
-    (new Date(coupon.endDate) - new Date()) / (1000 * 60 * 60 * 24),
-  );
+  const daysLeft = coupon.endDate
+    ? Math.ceil((new Date(coupon.endDate) - new Date()) / (1000 * 60 * 60 * 24))
+    : 0;
 
   const gradient = categoryGradients[coupon.category] || "from-teal to-sage";
   const Icon = categoryIcons[coupon.category] || RestaurantIcon;
@@ -59,9 +58,7 @@ const CouponCard = ({ coupon }) => {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div
-            className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}
-          >
+          <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
             <Icon className="text-white/90" />
           </div>
         )}
@@ -88,7 +85,7 @@ const CouponCard = ({ coupon }) => {
 
       {/* Body */}
       <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-1">
-        <Badge variant="cream">{coupon.category}</Badge>
+        <Badge variant="cream">{coupon.companyName || coupon.category}</Badge>
 
         <h3 className="font-serif font-bold text-base sm:text-[1.1rem] text-navy mt-1.5 leading-snug line-clamp-2">
           {coupon.title}
@@ -106,11 +103,11 @@ const CouponCard = ({ coupon }) => {
 
           {daysLeft > 0 ? (
             <span className="text-[0.7rem] sm:text-xs font-semibold text-teal">
-              {daysLeft} {daysLeft === 1 ? "day" : "days"}
+              {daysLeft} {daysLeft === 1 ? "día" : "días"}
             </span>
           ) : (
             <span className="text-[0.7rem] sm:text-xs font-semibold text-coral">
-              Last day
+              Vencido
             </span>
           )}
         </div>
