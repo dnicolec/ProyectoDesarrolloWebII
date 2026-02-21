@@ -22,15 +22,13 @@ const VerifyPage = () => {
     try {
       await authService.resendVerificationEmail();
       setMsg(
-        "Te reenviamos el correo de verificación. Por favor revisa tu inbox o spam."
+        "Te reenviamos el correo de verificación. Por favor revisa tu inbox o spam.",
       );
     } catch (e) {
       setErr("No se pudo reenviar. Debes iniciar sesión primero.");
-    } finally {
-      setLoading(false);
     }
   };
-  
+
   const iVerified = async () => {
     setMsg("");
     setErr("");
@@ -48,13 +46,11 @@ const VerifyPage = () => {
         navigate(location.state?.from || "/");
       } else {
         setErr(
-          "Tu cuenta aún no se encuentra verificada. Esperá un momento e intenta de nuevo."
+          "Tu cuenta aún no se encuentra verificada. Esperá un momento e intenta de nuevo.",
         );
       }
     } catch (e) {
       setErr("No se pudo comprobar la verificación de tu cuenta.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -101,5 +97,3 @@ const VerifyPage = () => {
     </div>
   );
 };
-
-export default VerifyPage;

@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./lib/firebase";
 import Layout from "./components/layout/Layout";
@@ -12,6 +18,7 @@ import MyCouponsPage from "./pages/MyCouponsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import PasswordPage from "./pages/PasswordPage";
 import VerifyPage from "./pages/VerifyPage";
+import CouponDetailPage from "./pages/CouponDetailPage";
 
 function ProtectedRoute({ children, user, loading }) {
   const location = useLocation();
@@ -20,9 +27,13 @@ function ProtectedRoute({ children, user, loading }) {
       <div className="flex items-center justify-center min-h-screen">
         <p>Cargando...</p>
       </div>
-    );  
+    );
   }
-  return user ? children : <Navigate to="/login" state={{ from: location.pathname }} />;
+  return user ? (
+    children
+  ) : (
+    <Navigate to="/login" state={{ from: location.pathname }} />
+  );
 }
 
 function App() {
@@ -71,22 +82,35 @@ function App() {
         </Route>
 
         {/* Rutas de autenticación */}
-        <Route path="/login" element={user ? (user.emailVerified ? <Navigate to="/" replace /> : <Navigate to="/verify" replace />) : <LoginPage />} /> 
-        <Route path="/register" element={user ? (user.emailVerified ? <Navigate to="/" replace /> : <Navigate to="/verify" replace />) : <RegisterPage />} />
-        <Route path="/password" element={user ? (user.emailVerified ? <Navigate to="/" replace /> : <Navigate to="/verify" replace />) : <PasswordPage />} /><Route path="/verify" element={user?.emailVerified ? <Navigate to="/" replace /> : <VerifyPage />} />
-
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/" /> : <LoginPage />}
+        />
+        <Route
+          path="/register"
+          element={user ? <Navigate to="/" /> : <RegisterPage />}
+        />
 
         {/* Rutas protegidas */}
-        <Route
-          path="/my-coupons"
-          element={
-            <Layout user={user} onLogout={handleLogout}>
+
+        <Route element={<Layout user={user} onLogout={handleLogout} />}>
+          <Route
+            path="/my-coupons"
+            element={
               <ProtectedRoute user={user} loading={loading}>
-                <MyCouponsPage />
+                <MyCouponsPage user={user} />
               </ProtectedRoute>
-            </Layout>
-          }
-        />
+            }
+          />
+          <Route
+            path="/my-coupons/:id"
+            element={
+              <ProtectedRoute user={user} loading={loading}>
+                <CouponDetailPage user={user} />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Button from '../ui/Button';
-import MenuIcon from '../ui/icons/MenuIcon';
-import CloseIcon from '../ui/icons/CloseIcon';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Button from "../ui/Button";
+import MenuIcon from "../ui/icons/MenuIcon";
+import CloseIcon from "../ui/icons/CloseIcon";
 
 const Navbar = ({ user, onLogout }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -15,8 +15,8 @@ const Navbar = ({ user, onLogout }) => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
             <span className="text-lg sm:text-xl font-serif font-extrabold text-navy">
-                <span className="text-coral">La</span> {' '}
-                <span className="text-teal">Cuponera</span>
+              <span className="text-coral">La</span>{" "}
+              <span className="text-teal">Cuponera</span>
             </span>
           </Link>
 
@@ -39,7 +39,10 @@ const Navbar = ({ user, onLogout }) => {
                 </Link>
                 <div className="h-5 w-px bg-cream" />
                 <span className="text-sm text-navy/50">
-                  Hola, {useNavigate} <span className="font-semibold text-navy">{user.firstName}</span>
+                  Hola,{" "}
+                  <span className="font-semibold text-navy">
+                    {user.displayName || user.email?.split("@")[0]}
+                  </span>
                 </span>
                 <Button variant="ghost" size="sm" onClick={onLogout}>
                   Cerrar sesión
@@ -50,14 +53,11 @@ const Navbar = ({ user, onLogout }) => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate("/login")}
                 >
                   Iniciar sesión
                 </Button>
-                <Button
-                  size="sm"
-                  onClick={() => navigate('/register')}
-                >
+                <Button size="sm" onClick={() => navigate("/register")}>
                   Registrarse
                 </Button>
               </div>
@@ -99,7 +99,7 @@ const Navbar = ({ user, onLogout }) => {
                 </Link>
                 <div className="px-3 pt-2 border-t border-cream">
                   <p className="text-sm text-navy/50 mb-2">
-                    {user.firstName} {user.lastName}
+                    {user.displayName || user.email?.split("@")[0]}
                   </p>
                   <Button
                     variant="ghost"
@@ -121,7 +121,7 @@ const Navbar = ({ user, onLogout }) => {
                   size="sm"
                   fullWidth
                   onClick={() => {
-                    navigate('/login');
+                    navigate("/login");
                     setMenuOpen(false);
                   }}
                 >
@@ -131,7 +131,7 @@ const Navbar = ({ user, onLogout }) => {
                   size="sm"
                   fullWidth
                   onClick={() => {
-                    navigate('/register');
+                    navigate("/register");
                     setMenuOpen(false);
                   }}
                 >

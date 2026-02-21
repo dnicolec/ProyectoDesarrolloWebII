@@ -4,10 +4,8 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
-  signOut,
 } from "firebase/auth";
 import { auth } from "../lib/firebase";
-
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Alert from "../components/ui/Alert";
@@ -20,7 +18,6 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -29,12 +26,13 @@ const LoginPage = () => {
   };
 
   const blockIfNotVerified = async (user) => {
-
     await user.reload();
 
     if (!user.emailVerified) {
       await signOut(auth);
-      navigate("/verify", { state: { email: user.email, from: location.state?.from || "/" } });
+      navigate("/verify", {
+        state: { email: user.email, from: location.state?.from || "/" },
+      });
       throw new Error("not-verified");
     }
   };
@@ -49,17 +47,11 @@ const LoginPage = () => {
         throw new Error("Por favor completa todos los campos");
       }
 
-      const cred = await signInWithEmailAndPassword(auth, email, password);
-
-      await blockIfNotVerified(cred.user);
-
-      redirectAfterLogin();
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate(location.state?.from || "/");
     } catch (err) {
       let mensaje = "Error al ingresar";
-
-      if (err.message === "not-verified") {
-        mensaje = "Tu cuenta no está verificada. Te enviamos a la pantalla de verificación.";
-      } else if (err.code === "auth/invalid-credential") {
+      if (err.code === "auth/invalid-credential") {
         mensaje = "Email o contraseña incorrectos";
       } else if (err.code === "auth/user-not-found") {
         mensaje = "Usuario no registrado";
@@ -79,19 +71,11 @@ const LoginPage = () => {
 
     try {
       const provider = new GoogleAuthProvider();
-      const cred = await signInWithPopup(auth, provider);
-
-      await blockIfNotVerified(cred.user);
-
-      redirectAfterLogin();
+      await signInWithPopup(auth, provider);
+      navigate(location.state?.from || "/");
     } catch (err) {
-      let mensaje = "Error al ingresar con Google";
-
-      if (err.message === "not-verified") {
-        mensaje = "Tu cuenta no está verificada. Te enviamos a la pantalla de verificación.";
-      }
-
-      setError(mensaje);
+      console.error("Error con Google:", err);
+      setError("Error al ingresar con Google");
     } finally {
       setLoading(false);
     }
@@ -99,8 +83,8 @@ const LoginPage = () => {
 
   return (
     <div className="container-app py-10 max-w-md mx-auto">
-      <h1 className="text-3xl font-semibold">Iniciar sesión</h1>
-      <p className="text-sm opacity-70 mt-1">Ingresa con tu correo y contraseña.</p>
+      <h1 className="text-2xl font-semibold">Iniciar sesión</h1>
+      <p className="text-sm opacity-70 mt-1">Ingresa tu correo y contraseña.</p>
 
       {error && (
         <Alert type="error" className="mt-4">
@@ -110,7 +94,9 @@ const LoginPage = () => {
 
       <form onSubmit={handleLogin} className="mt-6 space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-navy mb-2">Correo</label>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Correo
+          </label>
           <Input
             type="email"
             placeholder="tu@email.com"
@@ -123,7 +109,9 @@ const LoginPage = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-navy mb-2">Contraseña</label>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Contraseña
+          </label>
           <div className="relative">
             <Input
               type={showPassword ? "text" : "password"}
@@ -147,12 +135,14 @@ const LoginPage = () => {
         </Button>
       </form>
 
+      {/* Divider */}
       <div className="flex items-center gap-3 my-6">
         <div className="h-px bg-navy/20 flex-1" />
         <span className="text-sm text-navy/50">O continúa con</span>
         <div className="h-px bg-navy/20 flex-1" />
       </div>
 
+      {/* Google Login */}
       <button
         onClick={handleGoogleLogin}
         disabled={loading}
@@ -161,20 +151,16 @@ const LoginPage = () => {
         Google
       </button>
 
+      {/* Register Link */}
       <p className="text-center text-sm text-navy/60 mt-6">
         ¿No tienes cuenta?{" "}
-        <Link to="/register" className="text-teal font-semibold hover:underline">
+        <Link
+          to="/register"
+          className="text-coral font-semibold hover:underline"
+        >
           Regístrate aquí
         </Link>
       </p>
-
-     <p className="text-center text-sm text-navy/60 mt-6">
-        ¿Olvidaste tu contraseña?{" "}
-        <Link to="/password" className="text-teal font-semibold hover:underline">
-            Recuperala aquí
-        </Link>
-    </p>
-      
     </div>
   );
 };

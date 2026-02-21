@@ -14,20 +14,20 @@ const MyCouponsPage = ({ user }) => {
   const cargarCupones = useCallback(async () => {
     try {
       setLoading(true);
-      setError("");
+      setError(null);
 
-      // Si todavía no hay sesión, no consultes Firestore
       if (!user?.uid) {
         setCoupons([]);
         return;
       }
 
-      // IMPORTANTE: tu service debe aceptar uid
       const cuponesList = await obtenerCuponesUsuario(user.uid);
 
       const cuponesFormateados = cuponesList.map((cupon) => {
         const fechaFin = cupon.oferta?.fecha_fin
-          ? new Date(cupon.oferta.fecha_fin?.toDate?.() || cupon.oferta.fecha_fin)
+          ? new Date(
+              cupon.oferta.fecha_fin?.toDate?.() || cupon.oferta.fecha_fin,
+            )
           : null;
 
         let estadoUI = cupon.estado; // 'asignado' | 'canjeado'
@@ -60,18 +60,17 @@ const MyCouponsPage = ({ user }) => {
     }
   }, [user?.uid]);
 
-  // Cargar cuando ya exista user.uid
   useEffect(() => {
     cargarCupones();
   }, [cargarCupones]);
 
-  // Recargar al volver a la pestaña (pero solo si hay usuario)
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && user?.uid) cargarCupones();
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [cargarCupones, user?.uid]);
 
   const filteredCoupons =
@@ -93,9 +92,11 @@ const MyCouponsPage = ({ user }) => {
           <button
             onClick={() => setActiveFilter("todos")}
             className={`px-5 py-2 rounded-full text-sm font-semibold border-2 transition-all
-              ${activeFilter === "todos"
-                ? "bg-navy text-white border-navy"
-                : "bg-white text-navy/50 border-cream hover:border-sage"}`}
+              ${
+                activeFilter === "todos"
+                  ? "bg-navy text-white border-navy"
+                  : "bg-white text-navy/50 border-cream hover:border-sage"
+              }`}
           >
             Todos
           </button>
@@ -105,9 +106,11 @@ const MyCouponsPage = ({ user }) => {
               key={key}
               onClick={() => setActiveFilter(key)}
               className={`px-5 py-2 rounded-full text-sm font-semibold border-2 transition-all
-                ${activeFilter === key
-                  ? "bg-navy text-white border-navy"
-                  : "bg-white text-navy/50 border-cream hover:border-sage"}`}
+                ${
+                  activeFilter === key
+                    ? "bg-navy text-white border-navy"
+                    : "bg-white text-navy/50 border-cream hover:border-sage"
+                }`}
             >
               {label}
             </button>
@@ -121,7 +124,9 @@ const MyCouponsPage = ({ user }) => {
 
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            {[1, 2, 3].map((i) => <CouponCardLoader key={i} />)}
+            {[1, 2, 3].map((i) => (
+              <CouponCardLoader key={i} />
+            ))}
           </div>
         ) : !user?.uid ? (
           <div className="text-center py-16 space-y-4">
@@ -138,9 +143,16 @@ const MyCouponsPage = ({ user }) => {
           <div className="text-center py-16 space-y-4">
             <TagIcon className="mx-auto text-navy/30 mb-4" size={50} />
             <p className="text-navy/40">
-              {error ? "No se pudieron cargar los cupones" : "No tienes cupones en este estado"}
+              {error
+                ? "No se pudieron cargar los cupones"
+                : "No tienes cupones en este estado"}
             </p>
-            <Button variant="ghost" size="sm" onClick={cargarCupones} disabled={loading}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={cargarCupones}
+              disabled={loading}
+            >
               Actualizar
             </Button>
           </div>
