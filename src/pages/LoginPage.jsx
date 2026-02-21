@@ -43,7 +43,7 @@ export default function LoginPage() {
   return (
     <div className="container-app py-10 max-w-md mx-auto">
       <h1 className="text-2xl font-semibold">Iniciar sesión</h1>
-      <p className="text-sm opacity-70 mt-1">Entrá con tu correo y contraseña.</p>
+      <p className="text-sm opacity-70 mt-1">Ingresa tu correo y contraseña.</p>
 
       {serverError && (
         <div className="mt-4 rounded-lg border p-3 text-sm">{serverError}</div>
