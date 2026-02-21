@@ -6,6 +6,9 @@ import ScrollToTop from './components/layout/ScrollTop';
 import HomePage from './pages/HomePage';
 import OfferDetailPage from './pages/OfferDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
+import MyCouponsPage from './pages/MyCouponsPage';////////////////
+import  CouponDetailPage  from './pages/MyCouponsPage';
+import CheckoutPage from './pages/CheckoutPage';
 
 //Auth
 import LoginPage from "./pages/LoginPage";
@@ -41,14 +44,13 @@ function App() {
         <Route element={<Layout user={user} onLogout={handleLogout} />}>
           {/* Catalog */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/offer/:id" element={<OfferDetailPage user={user} />} />
-          {/*Auth*/}
-          <Route path="/login" element ={<LoginPage/>}/>
-          <Route path="/register" element ={<RegisterPage/>}/>
-          {/*Verify*/}
-          <Route path="/verify" element={<VerifyPage />} />
-          {/*Restablecer contraseña*/}
-          <Route path='/password' element={<PasswordPage/>}/>
+          <Route path="/offer/:id" element={<OfferDetailPage user={{id:1, name:"Test user"}} />} />
+          <Route path="/checkout" element={<CheckoutPage />} /> 
+          <Route path="/my-coupons" element={<MyCouponsPage />} />
+          <Route
+            path="/coupon/:id"
+            element={<CouponDetailPage user={user} />}
+          />
           {/* 404 */}
           <Route path="*" element={<NotFoundPage />} />
         </Route>

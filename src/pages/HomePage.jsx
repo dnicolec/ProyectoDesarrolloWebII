@@ -21,8 +21,8 @@ const MOCK_OFFERS = [
     startDate: '2025-02-01',
     endDate: '2026-03-15',
     couponDeadline: '2025-03-30',
-    couponLimit: 100,
-    couponsSold: 37,
+    couponLimit: 2,
+    couponsSold: 0,
     description:
       'Disfruta de un delicioso plato fuerte con acompañante completamente gratis',
     details: 'Válido de lunes a viernes',
