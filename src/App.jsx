@@ -1,11 +1,24 @@
-import { useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Layout from "./components/layout/Layout";
-import ScrollToTop from "./components/layout/ScrollTop";
-import HomePage from "./pages/HomePage";
-import OfferDetailPage from "./pages/OfferDetailPage";
-import NotFoundPage from "./pages/NotFoundPage";
-import CouponDetailPage, { MyCouponsPage } from "./pages/MyCouponsPage";
+//import { useState } from "react";
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Layout from './components/layout/Layout';
+import ScrollToTop from './components/layout/ScrollTop';
+import HomePage from './pages/HomePage';
+import OfferDetailPage from './pages/OfferDetailPage';
+import NotFoundPage from './pages/NotFoundPage';
+
+//Auth
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+
+//Verify
+import VerifyPage from './pages/VerifyPage';
+
+//Restablecer contraseña
+import PasswordPage from './pages/PasswordPage';
+
+import { useAuth } from './context/AuthContext';
+import { authService } from './services/authService';
 
 const Placeholder = ({ title }) => (
   <div className="container-app py-20 text-center">
@@ -15,10 +28,10 @@ const Placeholder = ({ title }) => (
 );
 
 function App() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth ();
 
-  const handleLogout = () => {
-    setUser(null);
+  const handleLogout = async() => {
+    await authService.logout();
   };
 
   return (
@@ -29,11 +42,13 @@ function App() {
           {/* Catalog */}
           <Route path="/" element={<HomePage />} />
           <Route path="/offer/:id" element={<OfferDetailPage user={user} />} />
-          <Route path="/my-coupons" element={<MyCouponsPage />} />
-          <Route
-            path="/coupon/:id"
-            element={<CouponDetailPage user={user} />}
-          />
+          {/*Auth*/}
+          <Route path="/login" element ={<LoginPage/>}/>
+          <Route path="/register" element ={<RegisterPage/>}/>
+          {/*Verify*/}
+          <Route path="/verify" element={<VerifyPage />} />
+          {/*Restablecer contraseña*/}
+          <Route path='/password' element={<PasswordPage/>}/>
           {/* 404 */}
           <Route path="*" element={<NotFoundPage />} />
         </Route>
