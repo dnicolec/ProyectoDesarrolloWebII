@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./lib/firebase";
 import Layout from "./components/layout/Layout";
@@ -10,6 +16,7 @@ import RegisterPage from "./pages/RegisterPage";
 import OfferDetailPage from "./pages/OfferDetailPage";
 import MyCouponsPage from "./pages/MyCouponsPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import CouponDetailPage from "./pages/CouponDetailPage";
 
 function ProtectedRoute({ children, user, loading }) {
   const location = useLocation();
@@ -20,7 +27,11 @@ function ProtectedRoute({ children, user, loading }) {
       </div>
     );
   }
-  return user ? children : <Navigate to="/login" state={{ from: location.pathname }} />;
+  return user ? (
+    children
+  ) : (
+    <Navigate to="/login" state={{ from: location.pathname }} />
+  );
 }
 
 function App() {
@@ -69,20 +80,35 @@ function App() {
         </Route>
 
         {/* Rutas de autenticación */}
-        <Route path="/login" element={user ? <Navigate to="/" /> : <LoginPage />} />
-        <Route path="/register" element={user ? <Navigate to="/" /> : <RegisterPage />} />
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/" /> : <LoginPage />}
+        />
+        <Route
+          path="/register"
+          element={user ? <Navigate to="/" /> : <RegisterPage />}
+        />
 
         {/* Rutas protegidas */}
-        <Route
-          path="/my-coupons"
-          element={
-            <Layout user={user} onLogout={handleLogout}>
+
+        <Route element={<Layout user={user} onLogout={handleLogout} />}>
+          <Route
+            path="/my-coupons"
+            element={
               <ProtectedRoute user={user} loading={loading}>
-                <MyCouponsPage />
+                <MyCouponsPage user={user} />
               </ProtectedRoute>
-            </Layout>
-          }
-        />
+            }
+          />
+          <Route
+            path="/my-coupons/:id"
+            element={
+              <ProtectedRoute user={user} loading={loading}>
+                <CouponDetailPage user={user} />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

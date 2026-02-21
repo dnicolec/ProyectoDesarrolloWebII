@@ -21,9 +21,10 @@ const categoryIcons = {
 };
 
 const statusConfig = {
-  asignado: { variant: "teal",  label: "Disponible" },
-  canjeado: { variant: "navy",  label: "Canjeado"   },
-  vencido:  { variant: "coral", label: "Vencido"    },
+  asignado: { variant: "teal", label: "Disponible" },
+  disponible: { variant: "teal", label: "Disponible" },
+  canjeado: { variant: "navy", label: "Canjeado" },
+  vencido: { variant: "coral", label: "Vencido" },
 };
 
 const CouponCard = ({ coupon }) => {
@@ -43,7 +44,7 @@ const CouponCard = ({ coupon }) => {
 
   return (
     <div
-      onClick={() => navigate(`/coupon/${coupon.id}`)}
+      onClick={() => navigate(`/my-coupons/${coupon.id}`)}
       className="bg-white rounded-2xl border border-cream overflow-hidden cursor-pointer
                  hover:shadow-lg hover:shadow-navy/[0.06] hover:-translate-y-1.5
                  transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]
@@ -58,11 +59,13 @@ const CouponCard = ({ coupon }) => {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+          <div
+            className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}
+          >
             <Icon className="text-white/90" />
           </div>
         )}
-        <div className="absolute top-3 left-3">
+        <div className="absolute top-3 left-3 bg-white/70 backdrop-blur-[2px] p-[2px] rounded-full shadow-sm">
           <Badge variant={config.variant}>{config.label}</Badge>
         </div>
       </div>
