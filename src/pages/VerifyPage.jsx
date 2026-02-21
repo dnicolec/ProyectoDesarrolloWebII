@@ -13,10 +13,11 @@ export default function VerifyPage() {
     setErr("");
     try {
       await authService.resendVerificationEmail();
-      setMsg("Te reenviamos el correo de verificación. Revisá inbox/spam.");
-    } catch (err) {
-      console.error(err);
-      setErr("No se pudo reenviar. Iniciá sesión primero.");
+      setMsg(
+        "Te reenviamos el correo de verificación. Por favor revisa tu inbox o spam.",
+      );
+    } catch (e) {
+      setErr("No se pudo reenviar. Debes iniciar sesión primero.");
     }
   };
 
@@ -38,9 +39,8 @@ export default function VerifyPage() {
           "Tu cuenta aún no se encuentra verificada. Esperá un momento e intenta de nuevo.",
         );
       }
-    } catch (err) {
-      console.error(err);
-      setErr("No se pudo comprobar la verificación.");
+    } catch (e) {
+      setErr("No se pudo comprobar la verificación de tu cuenta.");
     }
   };
 

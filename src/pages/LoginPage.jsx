@@ -65,92 +65,85 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-navy via-navy-light to-teal-hover flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif font-bold text-navy mb-2">
-            Bienvenido
-          </h1>
-          <p className="text-navy/60">Inicia sesión en tu cuenta</p>
+    <div className="container-app py-10 max-w-md mx-auto">
+      <h1 className="text-2xl font-semibold">Iniciar sesión</h1>
+      <p className="text-sm opacity-70 mt-1">Ingresa tu correo y contraseña.</p>
+
+      {error && (
+        <Alert type="error" className="mt-4">
+          {error}
+        </Alert>
+      )}
+
+      <form onSubmit={handleLogin} className="mt-6 space-y-4">
+        <div>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Correo
+          </label>
+          <Input
+            type="email"
+            placeholder="tu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
+            autoComplete="email"
+            required
+          />
         </div>
 
-        {/* Error */}
-        {error && <Alert type="error" title="Error" description={error} />}
-
-        {/* Form */}
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-navy mb-2">
-              Email
-            </label>
+        <div>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Contraseña
+          </label>
+          <div className="relative">
             <Input
-              type="email"
-              placeholder="tu@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-navy/50"
+            >
+              {showPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
+            </button>
           </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-navy mb-2">
-              Contraseña
-            </label>
-            <div className="relative">
-              <Input
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-navy/50"
-              >
-                {showPassword ? (
-                  <EyeOffIcon size={20} />
-                ) : (
-                  <EyeIcon size={20} />
-                )}
-              </button>
-            </div>
-          </div>
-
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Cargando..." : "Ingresar"}
-          </Button>
-        </form>
-
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-6">
-          <div className="h-px bg-navy/20 flex-1" />
-          <span className="text-sm text-navy/50">O continúa con</span>
-          <div className="h-px bg-navy/20 flex-1" />
         </div>
 
-        {/* Google Login */}
-        <button
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="w-full border-2 border-navy/20 rounded-lg py-2 px-4 font-semibold text-navy hover:bg-navy/5 transition disabled:opacity-50"
-        >
-          Google
-        </button>
+        <Button type="submit" disabled={loading} className="w-full mt-6">
+          {loading ? "Cargando..." : "Ingresar"}
+        </Button>
+      </form>
 
-        {/* Register Link */}
-        <p className="text-center text-sm text-navy/60 mt-6">
-          ¿No tienes cuenta?{" "}
-          <Link
-            to="/register"
-            className="text-coral font-semibold hover:underline"
-          >
-            Regístrate aquí
-          </Link>
-        </p>
+      {/* Divider */}
+      <div className="flex items-center gap-3 my-6">
+        <div className="h-px bg-navy/20 flex-1" />
+        <span className="text-sm text-navy/50">O continúa con</span>
+        <div className="h-px bg-navy/20 flex-1" />
       </div>
+
+      {/* Google Login */}
+      <button
+        onClick={handleGoogleLogin}
+        disabled={loading}
+        className="w-full border-2 border-navy/20 rounded-lg py-2 px-4 font-semibold text-navy hover:bg-navy/5 transition disabled:opacity-50"
+      >
+        Google
+      </button>
+
+      {/* Register Link */}
+      <p className="text-center text-sm text-navy/60 mt-6">
+        ¿No tienes cuenta?{" "}
+        <Link
+          to="/register"
+          className="text-coral font-semibold hover:underline"
+        >
+          Regístrate aquí
+        </Link>
+      </p>
     </div>
   );
 };
