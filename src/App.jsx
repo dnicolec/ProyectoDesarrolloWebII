@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Layout from './components/layout/Layout';
-import ScrollToTop from './components/layout/ScrollTop';
-import HomePage from './pages/HomePage';
-import OfferDetailPage from './pages/OfferDetailPage';
-import NotFoundPage from './pages/NotFoundPage';
+import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./components/layout/Layout";
+import ScrollToTop from "./components/layout/ScrollTop";
+import HomePage from "./pages/HomePage";
+import OfferDetailPage from "./pages/OfferDetailPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import CouponDetailPage, { MyCouponsPage } from "./pages/MyCouponsPage";
 
 const Placeholder = ({ title }) => (
   <div className="container-app py-20 text-center">
@@ -28,6 +29,11 @@ function App() {
           {/* Catalog */}
           <Route path="/" element={<HomePage />} />
           <Route path="/offer/:id" element={<OfferDetailPage user={user} />} />
+          <Route path="/my-coupons" element={<MyCouponsPage />} />
+          <Route
+            path="/coupon/:id"
+            element={<CouponDetailPage user={user} />}
+          />
           {/* 404 */}
           <Route path="*" element={<NotFoundPage />} />
         </Route>
