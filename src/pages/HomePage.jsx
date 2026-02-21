@@ -51,9 +51,21 @@ const HomePage = () => {
     }, 800);
   }, []);
 
-  const filteredOffers = activeCategory
-    ? offers.filter((o) => o.categoryId === activeCategory)
-    : offers;
+  const today = new Date();
+  const isOfferActive = (offer) => {
+    const start = new Date(offer.startDate);
+    const end = new Date(offer.endDate);
+
+    const withinDateRange = today >= start && today <= end;
+    const isAvailable = !offer.couponLimit || offer.couponsSold < offer.couponLimit;
+    const isApproved = offer.status === 'approved';
+    return withinDateRange && isAvailable && isApproved; 
+  };
+
+  const filteredOffers = offers.filter((offer) => {
+    const matchesCategory = !activeCategory || offer.categoryId === activeCategory;
+    return matchesCategory && isOfferActive(offer);
+  });
 
   return (
     <div>
