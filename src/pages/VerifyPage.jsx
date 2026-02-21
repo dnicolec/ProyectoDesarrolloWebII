@@ -97,3 +97,5 @@ const VerifyPage = () => {
     </div>
   );
 };
+
+export default VerifyPage;
