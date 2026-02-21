@@ -16,14 +16,14 @@ export default function PasswordPage() {
 
     try {
       await authService.resetPassword(correo);
-      setMsg("Listo. Te enviamos un correo para restablecer tu contraseña.");
+      setMsg("Te enviamos un enlace para restablecer tu contraseña, por favor verifica tu correo.");
     } catch (e2) {
       const text =
         e2?.code === "auth/invalid-email"
           ? "Correo inválido."
           : e2?.code === "auth/user-not-found"
           ? "No existe una cuenta con ese correo."
-          : "No se pudo enviar el correo. Intenta de nuevo.";
+          : "No se pudo enviar el correo. Por favor, intenta de nuevo.";
       setErr(text);
     } finally {
       setLoading(false);
