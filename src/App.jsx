@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./lib/firebase";
+import { CartProvider } from "./context/CartContext";
 import Layout from "./components/layout/Layout";
 import ScrollToTop from "./components/layout/ScrollTop";
 import HomePage from "./pages/HomePage";
@@ -20,6 +21,7 @@ import PasswordPage from "./pages/PasswordPage";
 import VerifyPage from "./pages/VerifyPage";
 import CouponDetailPage from "./pages/CouponDetailPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import CartPage from "./pages/CartPage";
 
 function ProtectedRoute({ children, user, loading }) {
   const location = useLocation();
@@ -72,58 +74,68 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <ScrollToTop />
-      <Routes>
-        {/* Rutas públicas */}
-        <Route element={<Layout user={user} onLogout={handleLogout} />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/offer/:id" element={<OfferDetailPage user={user} />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
+    <CartProvider>
+      <BrowserRouter>
+        <ScrollToTop />
+        <Routes>
+          {/* Rutas públicas */}
+          <Route element={<Layout user={user} onLogout={handleLogout} />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/offer/:id" element={<OfferDetailPage user={user} />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
 
-        {/* Rutas de autenticación */}
-        <Route
-          path="/login"
-          element={user ? <Navigate to="/" /> : <LoginPage />}
-        />
-        <Route
-          path="/register"
-          element={user ? <Navigate to="/" /> : <RegisterPage />}
-        />
-
-        <Route path="/verify" element={<VerifyPage />} />
-
-        {/* Rutas protegidas */}
-
-        <Route element={<Layout user={user} onLogout={handleLogout} />}>
+          {/* Rutas de autenticación */}
           <Route
-            path="/my-coupons"
-            element={
-              <ProtectedRoute user={user} loading={loading}>
-                <MyCouponsPage user={user} />
-              </ProtectedRoute>
-            }
+            path="/login"
+            element={user ? <Navigate to="/" /> : <LoginPage />}
           />
           <Route
-            path="/my-coupons/:id"
-            element={
-              <ProtectedRoute user={user} loading={loading}>
-                <CouponDetailPage user={user} />
-              </ProtectedRoute>
-            }
+            path="/register"
+            element={user ? <Navigate to="/" /> : <RegisterPage />}
           />
-          <Route
-            path="/checkout"
-            element={
-              <ProtectedRoute user={user} loading={loading}>
-                <CheckoutPage user={user} />
-              </ProtectedRoute>
-            }
-          />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+
+          <Route path="/verify" element={<VerifyPage />} />
+
+          {/* Rutas protegidas */}
+
+          <Route element={<Layout user={user} onLogout={handleLogout} />}>
+            <Route
+              path="/my-coupons"
+              element={
+                <ProtectedRoute user={user} loading={loading}>
+                  <MyCouponsPage user={user} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-coupons/:id"
+              element={
+                <ProtectedRoute user={user} loading={loading}>
+                  <CouponDetailPage user={user} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cart"
+              element={
+                <ProtectedRoute user={user} loading={loading}>
+                  <CartPage user={user} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute user={user} loading={loading}>
+                  <CheckoutPage user={user} />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </CartProvider>
   );
 }
 

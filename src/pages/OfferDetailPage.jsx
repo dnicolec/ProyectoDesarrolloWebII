@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Button, Badge, Alert } from "../components/ui";
 import { obtenerOfertaPorId } from "../services/ofertasService";
-import { solicitarCupon } from "../services/cuponesService";
+import { useCart } from "../context/CartContext";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
 import RestaurantIcon from "../components/ui/icons/RestaurantIcon";
@@ -10,8 +10,6 @@ import VeterinaryIcon from "../components/ui/icons/VeterinaryIcon";
 import EntertainmentIcon from "../components/ui/icons/EntertainmentIcon";
 import ClothingStoreIcon from "../components/ui/icons/ClothingStoreIcon";
 import SearchIcon from "../components/ui/icons/SearchIcon";
-import emailjs from "@emailjs/browser";
-import { th } from "zod/locales";
 
 const categoryGradients = {
   restaurant: "from-coral to-[#ffb3ae]",
@@ -52,13 +50,15 @@ const OfferDetailPage = ({ user }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { addToCart } = useCart();
 
   const [offer, setOffer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState("");
-  const [yaLoTiene, setYaLoTiene] = useState(false);
+  const [cantidad, setCantidad] = useState(1);
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
 
   const cargarOferta = useCallback(async () => {
     try {
@@ -67,18 +67,6 @@ const OfferDetailPage = ({ user }) => {
 
       const ofertaData = await obtenerOfertaPorId(id);
       setOffer(ofertaData);
-
-      // Verificar si el usuario ya tiene un cupón de esta oferta
-      if (auth.currentUser) {
-        const snap = await getDocs(
-          query(
-            collection(db, "cupones"),
-            where("oferta_id", "==", id),
-            where("usuario_id", "==", auth.currentUser.uid),
-          ),
-        );
-        setYaLoTiene(!snap.empty);
-      }
     } catch (err) {
       console.error("Error cargando oferta:", err);
       setError(err.message);
@@ -97,22 +85,29 @@ const OfferDetailPage = ({ user }) => {
       return;
     }
 
-    
-    navigate("/checkout", {
-      state: {
-        offer: {
-          id: id,
-          title: offer.titulo,
-          companyName: offer.empresa?.nombre,
-          //offerPrice: offer.descuento,
-          category: offer.rubro,
-          descripcion: offer.descripcion,
-          descuento: offer.descuento, 
-          tipo: offer.tipo,
-        },
-        quantity: 1,
-      },
-    });
+    try {
+      setProcessing(true);
+      setError("");
+      
+      // Agregar al carrito
+      addToCart(offer, cantidad);
+      
+      setSuccess(`✓ Se agregó ${cantidad} cupón(es) al carrito`);
+      setMostrarConfirmacion(true);
+      
+      // Limpiar cantidad después de agregar
+      setCantidad(1);
+      
+      // Ocultar mensaje después de 3 segundos
+      setTimeout(() => {
+        setSuccess("");
+      }, 3000);
+    } catch (err) {
+      console.error("Error:", err);
+      setError(err.message || "Error al agregarcupón");
+    } finally {
+      setProcessing(false);
+    }
   };
   // --- Estados de carga ------------------------------------------------------
 
@@ -157,14 +152,14 @@ const OfferDetailPage = ({ user }) => {
   );
 
   const botonDeshabilitado =
-    processing || disponibles <= 0 || diasRestantes <= 0 || yaLoTiene;
+    processing || disponibles <= 0 || diasRestantes <= 0 || cantidad < 1 || cantidad > disponibles;
   const botonTexto = processing
     ? "Procesando..."
-    : yaLoTiene
-      ? "Ya tienes este cupón"
-      : disponibles <= 0
-        ? "Sin cupones disponibles"
-        : "Agregar Cupón";
+    : disponibles <= 0
+      ? "Sin cupones disponibles"
+      : diasRestantes <= 0
+        ? "Oferta vencida"
+        : "Agregar Cupones";
 
   return (
     <div className="container-app py-8">
@@ -222,25 +217,90 @@ const OfferDetailPage = ({ user }) => {
               </span>
             </div>
 
-            <div className="bg-navy/5 rounded-lg p-4 text-sm text-navy/70">
-              <p className="font-semibold mb-2">Disponibilidad:</p>
-              <p>
-                {Math.max(0, disponibles)} de {offer.cantidadCupones} cupones
-                disponibles
-              </p>
+            <div className="bg-navy/5 rounded-lg p-4 text-sm text-navy/70 space-y-3">
+              <div>
+                <p className="font-semibold mb-2">Disponibilidad:</p>
+                <p>
+                  {Math.max(0, disponibles)} de {offer.cantidadCupones} cupones
+                  disponibles
+                </p>
+              </div>
+              {offer.costo_cupon && offer.costo_cupon > 0 && (
+                <div className="border-t border-navy/20 pt-3">
+                  <p className="font-semibold mb-1">Costo del cupón:</p>
+                  <p className="text-teal font-bold text-lg">${offer.costo_cupon}</p>
+                </div>
+              )}
             </div>
 
-            {yaLoTiene && (
-              <Alert type="info">
-                Ya tienes un cupón de esta oferta — revisa Mis Cupones
-              </Alert>
-            )}
+            {/* Selector de cantidad */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-navy">
+                Cantidad de cupones:
+              </label>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setCantidad(Math.max(1, cantidad - 1))}
+                  disabled={cantidad <= 1}
+                  className="px-4 py-2 bg-navy/10 text-navy rounded-lg hover:bg-navy/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  min="1"
+                  max={disponibles}
+                  value={cantidad}
+                  onChange={(e) => {
+                    let val = parseInt(e.target.value) || 1;
+                    val = Math.max(1, Math.min(val, disponibles));
+                    setCantidad(val);
+                  }}
+                  className="w-16 text-center py-2 border-2 border-cream rounded-lg focus:outline-none focus:border-teal"
+                />
+                <button
+                  onClick={() => setCantidad(Math.min(disponibles, cantidad + 1))}
+                  disabled={cantidad >= disponibles}
+                  className="px-4 py-2 bg-navy/10 text-navy rounded-lg hover:bg-navy/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  +
+                </button>
+              </div>
+              {offer.costo_cupon && offer.costo_cupon > 0 && (
+                <p className="text-sm text-teal font-semibold">
+                  Total: ${(offer.costo_cupon * cantidad).toFixed(2)}
+                </p>
+              )}
+            </div>
+
             {error && <Alert type="error" title="Error" description={error} />}
             {success && (
               <Alert type="success" title="Éxito" description={success} />
             )}
 
-            {user ? (
+            {mostrarConfirmacion ? (
+              <div className="space-y-3">
+                <Button
+                  fullWidth
+                  size="lg"
+                  onClick={() => navigate("/cart")}
+                  className="bg-teal hover:bg-teal/90"
+                >
+                  Ver carrito
+                </Button>
+                <Button
+                  fullWidth
+                  size="lg"
+                  variant="ghost"
+                  onClick={() => {
+                    setMostrarConfirmacion(false);
+                    setSuccess("");
+                  }}
+                >
+                  Seguir comprando
+                </Button>
+              </div>
+            ) : user ? (
               <Button
                 fullWidth
                 size="lg"

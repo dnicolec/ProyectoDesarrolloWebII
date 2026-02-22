@@ -16,6 +16,7 @@ const Badge = ({
     <span
       className={`
         inline-flex items-center font-bold rounded-lg
+        transition-all duration-300 ease-out
         ${badgeStyles[variant]}
         ${size === 'sm'
           ? 'px-2.5 py-0.5 text-[0.72rem] tracking-wide uppercase'

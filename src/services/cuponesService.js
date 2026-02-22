@@ -12,29 +12,20 @@ import {
 } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
 
-// Solicitar un cupón de una oferta (crea 1 cupón asignado directo al usuario)
-export const solicitarCupon = async (ofertaId) => {
+// Solicitar uno o más cupones de una oferta
+export const solicitarCupon = async (ofertaId, cantidad = 1) => {
   try {
     const user = auth.currentUser;
     if (!user) throw new Error("Debes iniciar sesión para obtener cupones");
+
+    if (cantidad < 1) throw new Error("La cantidad debe ser al menos 1");
 
     const ofertaRef = doc(db, "ofertas", ofertaId);
     const usuarioRef = doc(db, "usuarios", user.uid);
     const cuponesRef = collection(db, "cupones");
 
-    // Verificar que el usuario no tenga ya un cupón de esta oferta
-    const qExistente = query(
-      cuponesRef,
-      where("oferta_id", "==", ofertaId),
-      where("usuario_id", "==", user.uid),
-    );
-    const existenteSnap = await getDocs(qExistente);
-    if (!existenteSnap.empty) {
-      throw new Error("Ya tienes un cupón para esta oferta");
-    }
-
-    // Transacción atómica: verificar capacidad + crear cupón + actualizar contadores
-    const cuponId = await runTransaction(db, async (transaction) => {
+    // Transacción atómica: verificar capacidad + crear cupones + actualizar contadores
+    const cuponesIds = await runTransaction(db, async (transaction) => {
       const ofertaSnap = await transaction.get(ofertaRef);
       if (!ofertaSnap.exists()) throw new Error("La oferta no existe");
 
@@ -42,8 +33,14 @@ export const solicitarCupon = async (ofertaId) => {
 
       // Verificar que queden cupones disponibles
       const generados = oferta.cuponesGenerados ?? 0;
-      if (generados >= oferta.cantidadCupones) {
+      const disponibles = oferta.cantidadCupones - generados;
+      
+      if (disponibles <= 0) {
         throw new Error("No quedan cupones disponibles para esta oferta");
+      }
+
+      if (cantidad > disponibles) {
+        throw new Error(`Solo hay ${disponibles} cupones disponibles, solicitaste ${cantidad}`);
       }
 
       const usuarioSnap = await transaction.get(usuarioRef);
@@ -51,39 +48,52 @@ export const solicitarCupon = async (ofertaId) => {
         ? usuarioSnap.data()?.cupones || []
         : [];
 
-      // Generar código único
-      const codigo = `CUPON-${ofertaId}-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+      const cuponesCreados = [];
+      
+      // Crear múltiples cupones si la cantidad > 1
+      for (let i = 0; i < cantidad; i++) {
+        // Generar código único
+        const codigo = `CUPON-${ofertaId}-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
 
-      // Crear el documento del cupón
-      const nuevoCuponRef = doc(cuponesRef);
-      transaction.set(nuevoCuponRef, {
-        codigo,
-        oferta_id: ofertaId,
-        usuario_id: user.uid,
-        estado: "asignado",
-        createdAt: serverTimestamp(),
-        asignadoEn: serverTimestamp(),
-        canjeadoEn: null,
-      });
+        // Crear el documento del cupón
+        const nuevoCuponRef = doc(cuponesRef);
+        transaction.set(nuevoCuponRef, {
+          codigo,
+          oferta_id: ofertaId,
+          usuario_id: user.uid,
+          estado: "asignado",
+          costo_cupon: oferta.costo_cupon || 0,
+          createdAt: serverTimestamp(),
+          asignadoEn: serverTimestamp(),
+          canjeadoEn: null,
+        });
+        
+        cuponesCreados.push(nuevoCuponRef.id);
+      }
 
       // Incrementar cuponesGenerados en la oferta
       transaction.update(ofertaRef, {
-        cuponesGenerados: increment(1),
+        cuponesGenerados: increment(cantidad),
       });
 
-      // Agregar el cupón al array del usuario
+      // Agregar los cupones al array del usuario
       transaction.set(
         usuarioRef,
         {
-          cupones: [...cuponesList, nuevoCuponRef.id],
+          cupones: [...cuponesList, ...cuponesCreados],
         },
         { merge: true },
       );
 
-      return nuevoCuponRef.id;
+      return cuponesCreados;
     });
 
-    return { success: true, cuponId, mensaje: "Cupón agregado a tu cuenta" };
+    return { 
+      success: true, 
+      cuponesIds, 
+      cantidad: cuponesIds.length,
+      mensaje: `${cuponesIds.length} cupón(es) agregado(s) a tu cuenta` 
+    };
   } catch (error) {
     console.error("Error solicitando cupón:", error);
     throw error;

@@ -86,6 +86,7 @@ const CouponDetailPage = ({ user }) => {
         companyName: cuponData.oferta?.empresa?.nombre ?? "N/A",
         duiCliente: cuponData.duiCliente || duiUsuario,
         couponDeadline: fechaFin,
+        costoCupon: cuponData.costo_cupon ?? 0,
       });
     } catch (err) {
       console.error("Error cargando el detalle del cupón:", err);
@@ -290,7 +291,7 @@ const CouponDetailPage = ({ user }) => {
               </Alert>
             )}
 
-            <div className="pt-4 border-t border-cream text-sm text-navy/60">
+            <div className="pt-4 border-t border-cream text-sm text-navy/60 space-y-3">
               <p>
                 <strong>DUI del titular:</strong> {coupon.duiCliente}
               </p>
@@ -300,6 +301,12 @@ const CouponDetailPage = ({ user }) => {
                   ? formatDate(coupon.couponDeadline)
                   : "N/A"}
               </p>
+              {coupon.costoCupon !== undefined && coupon.costoCupon > 0 && (
+                <p>
+                  <strong>Costo del cupón:</strong>{" "}
+                  <span className="text-teal font-semibold">${coupon.costoCupon}</span>
+                </p>
+              )}
             </div>
           </div>
         </div>

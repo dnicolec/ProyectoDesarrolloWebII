@@ -41,6 +41,8 @@ const Alert = ({
     <div
       className={`
         flex items-start gap-3 p-4 rounded-[14px] border
+        transition-all duration-300 ease-out
+        animate-fade-in
         ${style.container} ${className}
       `}
       role="alert"

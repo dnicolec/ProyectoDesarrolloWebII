@@ -44,8 +44,8 @@ const Input = forwardRef(
               w-full rounded-xl border-2 bg-white px-4 py-2.5
               text-navy placeholder:text-sage/60
               font-sans text-[0.9rem]
-              transition-all duration-200
-              focus:outline-none focus:border-coral focus:ring-2 focus:ring-coral/20
+              transition-all duration-300 ease-out
+              focus:outline-none focus:border-coral focus:ring-2 focus:ring-coral/20 focus:shadow-lg focus:shadow-coral/10
               ${Icon ? 'pl-10' : ''}
               ${isPassword ? 'pr-10' : ''}
               ${

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import OfferCard from '../components/offers/OfferCard';
 import OfferCardLoader from '../components/offers/OfferCardLoader';
-import TagIcon from '../components/ui/icons/TagIcon';
+import SearchIcon from '../components/ui/icons/SearchIcon';
 import { obtenerRubros } from '../services/rubrosService';
 import { obtenerOfertasAprobadas } from '../services/ofertasService';
 
@@ -9,6 +9,7 @@ const HomePage = () => {
   const [categories, setCategories] = useState([]);
   const [offers, setOffers] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -58,7 +59,11 @@ const HomePage = () => {
 
   const filteredOffers = offers.filter((offer) => {
     const matchesCategory = !activeCategory || offer.rubro === activeCategory;
-    return matchesCategory && isOfferActive(offer);
+    const matchesSearch = !searchQuery || 
+      offer.titulo?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      offer.descripcion?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      offer.empresa?.nombre?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch && isOfferActive(offer);
   });
 
   return (
@@ -80,15 +85,36 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Search Bar */}
+      <section className="container-app -mt-8 pb-8 relative z-20">
+        <div className="max-w-2xl mx-auto animate-fade-in">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <SearchIcon className="text-navy/40" size={20} />
+            </div>
+            <input
+              type="text"
+              placeholder="Busca ofertas, empresas, categorías..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-cream bg-white 
+                         text-navy placeholder-navy/40 focus:outline-none focus:border-teal
+                         transition-all duration-300 shadow-lg shadow-navy/5
+                         hover:border-navy/10 focus:shadow-lg focus:shadow-teal/20"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Categories */}
-      <section className="container-app pt-8 pb-4" id="offers">
-        <div className="flex flex-wrap gap-3">
+      <section className="container-app pb-4" id="offers">
+        <div className="flex flex-wrap gap-3 animate-slide-up">
           <button
             onClick={() => setActiveCategory(null)}
             className={`px-5 py-2 rounded-full text-sm font-semibold border-2 transition-all
               ${activeCategory === null
-                ? 'bg-navy text-white border-navy'
-                : 'bg-white text-navy/50 border-cream hover:border-sage'}`}
+                ? 'bg-navy text-white border-navy shadow-md shadow-navy/20'
+                : 'bg-white text-navy/50 border-cream hover:border-sage hover:shadow-sm'}`}
           >
             Todas
           </button>
@@ -98,8 +124,8 @@ const HomePage = () => {
               onClick={() => setActiveCategory(cat.id)}
               className={`px-5 py-2 rounded-full text-sm font-semibold border-2 transition-all
                 ${activeCategory === cat.id
-                  ? 'bg-navy text-white border-navy'
-                  : 'bg-white text-navy/50 border-cream hover:border-sage'}`}
+                  ? 'bg-navy text-white border-navy shadow-md shadow-navy/20'
+                  : 'bg-white text-navy/50 border-cream hover:border-sage hover:shadow-sm'}`}
             >
               {cat.label}
             </button>

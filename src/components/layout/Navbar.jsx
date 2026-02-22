@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
 import Button from "../ui/Button";
 import MenuIcon from "../ui/icons/MenuIcon";
 import CloseIcon from "../ui/icons/CloseIcon";
+import CartIcon from "../ui/icons/CartIcon";
 
 const Navbar = ({ user, onLogout }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { getTotalItems } = useCart();
+  
+  const cartItems = getTotalItems();
 
   return (
     <nav className="sticky top-0 z-40 bg-white/92 backdrop-blur-md border-b border-cream">
@@ -37,6 +42,18 @@ const Navbar = ({ user, onLogout }) => {
                 >
                   Mis cupones
                 </Link>
+                <button
+                  onClick={() => navigate("/cart")}
+                  className="relative text-navy hover:text-teal transition-colors"
+                >
+                  <CartIcon size={20} />
+                  {cartItems > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-coral text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center
+                                   animate-pulse-light shadow-lg shadow-coral/30">
+                      {cartItems}
+                    </span>
+                  )}
+                </button>
                 <div className="h-5 w-px bg-cream" />
                 <span className="text-sm text-navy/50">
                   Hola,{" "}
@@ -96,6 +113,18 @@ const Navbar = ({ user, onLogout }) => {
                   onClick={() => setMenuOpen(false)}
                 >
                   Mis cupones
+                </Link>
+                <Link
+                  to="/cart"
+                  className="block px-3 py-2 rounded-lg text-sm font-medium text-navy/60 hover:bg-cream-light relative"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Carrito
+                  {cartItems > 0 && (
+                    <span className="absolute right-3 top-2 bg-coral text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                      {cartItems}
+                    </span>
+                  )}
                 </Link>
                 <div className="px-3 pt-2 border-t border-cream">
                   <p className="text-sm text-navy/50 mb-2">

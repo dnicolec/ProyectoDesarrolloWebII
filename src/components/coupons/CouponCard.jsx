@@ -104,19 +104,27 @@ const CouponCard = ({ coupon }) => {
         </p>
 
         {/* Footer */}
-        <div className="flex items-center justify-between mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-cream">
-          <span className="text-[0.7rem] sm:text-xs text-navy/40">
-            {coupon.companyName}
-          </span>
-
-          {daysLeft > 0 ? (
-            <span className="text-[0.7rem] sm:text-xs font-semibold text-teal">
-              {daysLeft} {daysLeft === 1 ? "día" : "días"}
+        <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-cream space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[0.7rem] sm:text-xs text-navy/40">
+              {coupon.companyName}
             </span>
-          ) : (
-            <span className="text-[0.7rem] sm:text-xs font-semibold text-coral">
-              Vencido
-            </span>
+            {daysLeft > 0 ? (
+              <span className="text-[0.7rem] sm:text-xs font-semibold text-teal">
+                {daysLeft} {daysLeft === 1 ? "día" : "días"}
+              </span>
+            ) : (
+              <span className="text-[0.7rem] sm:text-xs font-semibold text-coral">
+                Vencido
+              </span>
+            )}
+          </div>
+          {coupon.costo_cupon !== undefined && coupon.costo_cupon > 0 && (
+            <div className="flex items-center justify-end">
+              <span className="text-xs sm:text-sm font-semibold text-teal">
+                ${coupon.costo_cupon}
+              </span>
+            </div>
           )}
         </div>
       </div>

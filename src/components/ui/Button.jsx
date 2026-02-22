@@ -2,15 +2,15 @@ import { forwardRef } from 'react';
 
 const variants = {
   primary:
-    'bg-teal text-white hover:bg-teal-hover shadow-md shadow-teal/25 active:scale-[0.98]',
+    'bg-teal text-white hover:bg-teal-hover shadow-md shadow-teal/25 active:scale-[0.98] active:shadow-teal/15',
   coral:
-    'bg-coral text-white hover:bg-coral-hover shadow-md shadow-coral/30 active:scale-[0.98]',
+    'bg-coral text-white hover:bg-coral-hover shadow-md shadow-coral/30 active:scale-[0.98] active:shadow-coral/20',
   outline:
     'border-2 border-teal text-teal hover:bg-teal hover:text-white active:scale-[0.98]',
   ghost:
     'text-navy hover:bg-navy/5 active:scale-[0.98]',
   danger:
-    'bg-coral text-white hover:bg-coral-hover shadow-md shadow-coral/25 active:scale-[0.98]',
+    'bg-coral text-white hover:bg-coral-hover shadow-md shadow-coral/25 active:scale-[0.98] active:shadow-coral/15',
 };
 
 const sizes = {
