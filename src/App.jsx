@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./lib/firebase";
+import PrivateRoute from ".routes/PrivateRoute"
 import Layout from "./components/layout/Layout";
 import ScrollToTop from "./components/layout/ScrollTop";
 import HomePage from "./pages/HomePage";
@@ -20,6 +21,7 @@ import PasswordPage from "./pages/PasswordPage";
 import VerifyPage from "./pages/VerifyPage";
 import CouponDetailPage from "./pages/CouponDetailPage";
 import CheckoutPage from "./pages/CheckoutPage";
+
 
 function ProtectedRoute({ children, user, loading }) {
   const location = useLocation();
@@ -83,15 +85,9 @@ function App() {
         </Route>
 
         {/* Rutas de autenticación */}
-        <Route
-          path="/login"
-          element={user ? <Navigate to="/" /> : <LoginPage />}
-        />
-        <Route
-          path="/register"
-          element={user ? <Navigate to="/" /> : <RegisterPage />}
-        />
-
+        <Route path="/login" element={user ? <Navigate to="/" /> : <LoginPage />}/>
+        <Route path="/register" element={user ? <Navigate to="/" /> : <RegisterPage />}/>
+        <Route path="/password" element={user ? <Navigate to="/" /> : <RegisterPage />}/>
         <Route path="/verify" element={<VerifyPage />} />
 
         {/* Rutas protegidas */}
@@ -100,25 +96,25 @@ function App() {
           <Route
             path="/my-coupons"
             element={
-              <ProtectedRoute user={user} loading={loading}>
+              <PrivateRoute user={user} loading={loading}>
                 <MyCouponsPage user={user} />
-              </ProtectedRoute>
+              </PrivateRoute>
             }
           />
           <Route
             path="/my-coupons/:id"
             element={
-              <ProtectedRoute user={user} loading={loading}>
+              <PrivateRoute user={user} loading={loading}>
                 <CouponDetailPage user={user} />
-              </ProtectedRoute>
+              </PrivateRoute>
             }
           />
           <Route
             path="/checkout"
             element={
-              <ProtectedRoute user={user} loading={loading}>
+              <PrivateRoute user={user} loading={loading}>
                 <CheckoutPage user={user} />
-              </ProtectedRoute>
+              </PrivateRoute>
             }
           />
         </Route>
