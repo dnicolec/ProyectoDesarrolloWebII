@@ -1,15 +1,16 @@
-import { useState, useEffect } from 'react';
-import OfferCard from '../components/offers/OfferCard';
-import OfferCardLoader from '../components/offers/OfferCardLoader';
-import SearchIcon from '../components/ui/icons/SearchIcon';
-import { obtenerRubros } from '../services/rubrosService';
-import { obtenerOfertasAprobadas } from '../services/ofertasService';
+import { useState, useEffect } from "react";
+import OfferCard from "../components/offers/OfferCard";
+import OfferCardLoader from "../components/offers/OfferCardLoader";
+import SearchIcon from "../components/ui/icons/SearchIcon";
+import { obtenerRubros } from "../services/rubrosService";
+import { obtenerOfertasAprobadas } from "../services/ofertasService";
+import TagIcon from "../components/ui/icons/TagIcon";
 
 const HomePage = () => {
   const [categories, setCategories] = useState([]);
   const [offers, setOffers] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -22,14 +23,16 @@ const HomePage = () => {
           obtenerOfertasAprobadas(),
         ]);
 
-        setCategories(rubros.map((rubro) => ({
-          id: rubro.id,
-          name: rubro.nombre,
-          label: rubro.nombre,
-        })));
+        setCategories(
+          rubros.map((rubro) => ({
+            id: rubro.id,
+            name: rubro.nombre,
+            label: rubro.nombre,
+          })),
+        );
         setOffers(ofertas);
       } catch (err) {
-        console.error('Error cargando datos:', err);
+        console.error("Error cargando datos:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -41,11 +44,13 @@ const HomePage = () => {
 
   const isOfferActive = (offer) => {
     const today = new Date();
-    const start = new Date(offer.fecha_inicio?.toDate?.() || offer.fecha_inicio);
-    const end   = new Date(offer.fecha_fin?.toDate?.()   || offer.fecha_fin);
+    const start = new Date(
+      offer.fecha_inicio?.toDate?.() || offer.fecha_inicio,
+    );
+    const end = new Date(offer.fecha_fin?.toDate?.() || offer.fecha_fin);
 
     const withinDateRange = today >= start && today <= end;
-    const isApproved = offer.estado === 'aprobada';
+    const isApproved = offer.estado === "aprobada";
 
     // Con la nueva lógica:
     // cuponesGenerados = cuántos cupones se han ENTREGADO (empieza en 0)
@@ -59,7 +64,8 @@ const HomePage = () => {
 
   const filteredOffers = offers.filter((offer) => {
     const matchesCategory = !activeCategory || offer.rubro === activeCategory;
-    const matchesSearch = !searchQuery || 
+    const matchesSearch =
+      !searchQuery ||
       offer.titulo?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       offer.descripcion?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       offer.empresa?.nombre?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -75,8 +81,7 @@ const HomePage = () => {
             Nuevos descuentos cada semana
           </div>
           <h1 className="font-serif text-5xl font-black leading-tight max-w-3xl mx-auto">
-            Descubre{' '}
-            <span className="text-coral italic">promociones</span>{' '}
+            Descubre <span className="text-coral italic">promociones</span>{" "}
             increíbles
           </h1>
           <p className="mt-5 text-lg text-white/70 max-w-xl mx-auto">
@@ -112,9 +117,11 @@ const HomePage = () => {
           <button
             onClick={() => setActiveCategory(null)}
             className={`px-5 py-2 rounded-full text-sm font-semibold border-2 transition-all
-              ${activeCategory === null
-                ? 'bg-navy text-white border-navy shadow-md shadow-navy/20'
-                : 'bg-white text-navy/50 border-cream hover:border-sage hover:shadow-sm'}`}
+              ${
+                activeCategory === null
+                  ? "bg-navy text-white border-navy shadow-md shadow-navy/20"
+                  : "bg-white text-navy/50 border-cream hover:border-sage hover:shadow-sm"
+              }`}
           >
             Todas
           </button>
@@ -123,9 +130,11 @@ const HomePage = () => {
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
               className={`px-5 py-2 rounded-full text-sm font-semibold border-2 transition-all
-                ${activeCategory === cat.id
-                  ? 'bg-navy text-white border-navy shadow-md shadow-navy/20'
-                  : 'bg-white text-navy/50 border-cream hover:border-sage hover:shadow-sm'}`}
+                ${
+                  activeCategory === cat.id
+                    ? "bg-navy text-white border-navy shadow-md shadow-navy/20"
+                    : "bg-white text-navy/50 border-cream hover:border-sage hover:shadow-sm"
+                }`}
             >
               {cat.label}
             </button>
@@ -142,7 +151,9 @@ const HomePage = () => {
         )}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            {[1, 2, 3].map((i) => <OfferCardLoader key={i} />)}
+            {[1, 2, 3].map((i) => (
+              <OfferCardLoader key={i} />
+            ))}
           </div>
         ) : filteredOffers.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
@@ -153,7 +164,9 @@ const HomePage = () => {
         ) : (
           <div className="text-center py-16">
             <TagIcon className="mx-auto text-navy/30 mb-4" size={50} />
-            <p className="text-navy/40">No hay ofertas disponibles en esta categoría</p>
+            <p className="text-navy/40">
+              No hay ofertas disponibles en esta categoría
+            </p>
           </div>
         )}
       </section>

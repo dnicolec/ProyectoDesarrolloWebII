@@ -88,16 +88,16 @@ const OfferDetailPage = ({ user }) => {
     try {
       setProcessing(true);
       setError("");
-      
+
       // Agregar al carrito
       addToCart(offer, cantidad);
-      
+
       setSuccess(`✓ Se agregó ${cantidad} cupón(es) al carrito`);
       setMostrarConfirmacion(true);
-      
+
       // Limpiar cantidad después de agregar
       setCantidad(1);
-      
+
       // Ocultar mensaje después de 3 segundos
       setTimeout(() => {
         setSuccess("");
@@ -152,7 +152,11 @@ const OfferDetailPage = ({ user }) => {
   );
 
   const botonDeshabilitado =
-    processing || disponibles <= 0 || diasRestantes <= 0 || cantidad < 1 || cantidad > disponibles;
+    processing ||
+    disponibles <= 0 ||
+    diasRestantes <= 0 ||
+    cantidad < 1 ||
+    cantidad > disponibles;
   const botonTexto = processing
     ? "Procesando..."
     : disponibles <= 0
@@ -228,7 +232,9 @@ const OfferDetailPage = ({ user }) => {
               {offer.costo_cupon && offer.costo_cupon > 0 && (
                 <div className="border-t border-navy/20 pt-3">
                   <p className="font-semibold mb-1">Costo del cupón:</p>
-                  <p className="text-teal font-bold text-lg">${offer.costo_cupon}</p>
+                  <p className="text-teal font-bold text-lg">
+                    ${offer.costo_cupon}
+                  </p>
                 </div>
               )}
             </div>
@@ -259,7 +265,9 @@ const OfferDetailPage = ({ user }) => {
                   className="w-16 text-center py-2 border-2 border-cream rounded-lg focus:outline-none focus:border-teal"
                 />
                 <button
-                  onClick={() => setCantidad(Math.min(disponibles, cantidad + 1))}
+                  onClick={() =>
+                    setCantidad(Math.min(disponibles, cantidad + 1))
+                  }
                   disabled={cantidad >= disponibles}
                   className="px-4 py-2 bg-navy/10 text-navy rounded-lg hover:bg-navy/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
