@@ -65,8 +65,13 @@ const CouponCard = ({ coupon }) => {
             <Icon className="text-white/90" />
           </div>
         )}
-        <div className="absolute top-3 left-3 bg-white/70 backdrop-blur-[2px] p-[2px] rounded-full shadow-sm">
-          <Badge variant={config.variant}>{config.label}</Badge>
+        <div className="absolute top-3 left-3 ">
+          <Badge
+            variant={config.variant}
+            className="!bg-white/70 !backdrop-blur-sm border-white/30 shadow-sm"
+          >
+            {config.label}
+          </Badge>
         </div>
       </div>
 

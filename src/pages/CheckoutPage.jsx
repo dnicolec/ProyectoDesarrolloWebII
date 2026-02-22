@@ -1,8 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Button, Badge, Alert } from "../components/ui";
+import { solicitarCupon } from "../services/cuponesService";
+import emailjs from "@emailjs/browser";
+import { success } from "zod";
 
-const CheckoutPage = () => {
+const CheckoutPage = ({ user }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -11,18 +14,21 @@ const CheckoutPage = () => {
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState("");
 
   if (!offer) {
     return (
       <div className="container-app py-20 text-center">
         <p className="text-navy/50">No hay información de compra.</p>
+        <Button onClick={() => navigate("/")}>Ver ofertas</Button>
       </div>
     );
   }
 
   const total = offer.offerPrice * quantity;
 
-  const handlePayment = (e) => {
+  const handlePayment = async (e) => {
     e.preventDefault();
 
     if (!cardNumber || !expiry || !cvv) {
@@ -30,8 +36,32 @@ const CheckoutPage = () => {
       return;
     }
 
-    alert("Compra exitosa. Se envió un correo de confirmación.");
-    navigate("/");
+    setProcessing(true);
+    setError("");
+
+    // logica para envio de correo
+
+    try {
+      await solicitarCupon(offer.id);
+
+      await emailjs.send(
+        "service_mhbzvcs",
+        "template_b3g46es",
+        {
+          user_name: user?.displayName || "Usuario",
+          user_email: user?.email,
+          offer_title: offer.title,
+          company_name: offer.company,
+        },
+        "bRucC3jMVo9zYDT5b",
+      );
+
+      navigate("/my-coupons", { state: { success: true } });
+    } catch (err) {
+      console.error("Error:", err);
+      setError(err.message || "Error al agregar cupón");
+      setProcessing(false);
+    }
   };
 
   return (
