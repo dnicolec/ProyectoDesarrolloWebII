@@ -96,14 +96,19 @@ const OfferDetailPage = ({ user }) => {
       navigate("/login", { state: { from: location.pathname } });
       return;
     }
+
+    
     navigate("/checkout", {
       state: {
         offer: {
           id: id,
           title: offer.titulo,
           companyName: offer.empresa?.nombre,
-          offerPrice: offer.descuento,
+          //offerPrice: offer.descuento,
           category: offer.rubro,
+          descripcion: offer.descripcion,
+          descuento: offer.descuento, 
+          tipo: offer.tipo,
         },
         quantity: 1,
       },

@@ -23,16 +23,33 @@ const CheckoutPage = ({ user }) => {
         <p className="text-navy/50">No hay información de compra.</p>
         <Button onClick={() => navigate("/")}>Ver ofertas</Button>
       </div>
-    );
-  }
+    ); 
+  } 
 
-  const total = offer.offerPrice * quantity;
+  //const total = offer.offerPrice * quantity;
+
+  const discountData = offer.tipo === "porcentaje" ?`${offer.descuento}%` 
+  : `$${offer.descuento}`;
 
   const handlePayment = async (e) => {
     e.preventDefault();
 
-    if (!cardNumber || !expiry || !cvv) {
-      alert("Completa todos los campos.");
+    const digitsOnly = cardNumber.replace(/\s/g, "");
+
+    const cardNumberPattern = /^\d{16}$/;
+    const expiryPattern = /^(0[1-9]|1[0-2])\/\d{2}$/; 
+    const cvvPattern = /^\d{3}$/; 
+
+    if (!cardNumberPattern.test(digitsOnly)) {
+      alert("Ingresa un número de tarjeta válido de 16 dígitos.");
+      return;
+    }
+    if (!expiryPattern.test(expiry)) {
+      alert("Ingresa la fecha de expiración en formato MM/AA.");
+      return;
+    }
+    if (!cvvPattern.test(cvv)) {
+      alert("Ingresa un CVV válido de 3 dígitos.");
       return;
     }
 
@@ -40,10 +57,8 @@ const CheckoutPage = ({ user }) => {
     setError("");
 
     // logica para envio de correo
-
-    try {
+    try{
       await solicitarCupon(offer.id);
-
       await emailjs.send(
         "service_mhbzvcs",
         "template_b3g46es",
@@ -75,8 +90,12 @@ const CheckoutPage = ({ user }) => {
               Finalizar compra
             </h1>
 
-            {/* Resumen */}
+            {/* Resumen de la oferta */}
             <div className="space-y-2 text-navy/70 text-sm border-b border-cream pb-4">
+              <div className="flex justify-between">
+                <span>Descuento</span>
+                <span>{discountData}</span>
+              </div>
               <div className="flex justify-between">
                 <span>Categoría</span>
                 <span>{offer.category}</span>
@@ -90,45 +109,57 @@ const CheckoutPage = ({ user }) => {
                 <span className="text-right">{offer.title}</span>
               </div>
               <div className="flex justify-between">
-                <span>Precio individual</span>
-                <span>${offer.offerPrice.toFixed(2)}</span>
+                <span className="font-bold">Descripción</span>
+                <span className="text-right text-[#f07a73]">{offer.descripcion}</span>
               </div>
+ 
 
-              <div className="flex justify-between">
-                <span>Cantidad</span>
-                <span>{quantity}</span>
-              </div>
-
-              <div className="flex justify-between font-bold text-navy pt-2">
+              {/*<div className="flex justify-between font-bold text-navy pt-2">
                 <span>Total</span>
                 <span>${total.toFixed(2)}</span>
-              </div>
+              </div> */}
             </div>
 
             {/* Formulario */}
             <form onSubmit={handlePayment} className="space-y-4">
+              {error && <Alert type="error" title="Error" description={error} />}
+
               <div>
                 <label className="block text-xs text-navy/50 mb-1">
                   Número de tarjeta
                 </label>
                 <input
                   type="text"
+                  placeholder="1234 1234 1234 1234"
+                  maxLength={19}
                   value={cardNumber}
-                  onChange={(e) => setCardNumber(e.target.value)}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, "");
+                    const formatted = digits.replace(/(\d{4})(?=\d)/g, "$1 ");
+                    setCardNumber(formatted);
+                  }}
                   className="w-full rounded-xl border-2 border-cream bg-white px-3 py-2 focus:outline-none"
+                  required
                 />
               </div>
 
               <div className="flex gap-3">
                 <div className="w-1/2">
-                  <label className="block text-xs text-navy/50 mb-1">
-                    MM/AA
-                  </label>
+                  <label className="block text-xs text-navy/50 mb-1">MM/AA</label>
                   <input
                     type="text"
+                    placeholder="MM/AA"
+                    maxLength={5}
                     value={expiry}
-                    onChange={(e) => setExpiry(e.target.value)}
+                    onChange={(e) =>
+                      setExpiry(
+                        e.target.value
+                          .replace(/[^\d]/g, "")
+                          .replace(/^(\d{2})(\d)/, "$1/$2")
+                      )
+                    }
                     className="w-full rounded-xl border-2 border-cream bg-white px-3 py-2 focus:outline-none"
+                    required
                   />
                 </div>
 
@@ -136,15 +167,18 @@ const CheckoutPage = ({ user }) => {
                   <label className="block text-xs text-navy/50 mb-1">CVV</label>
                   <input
                     type="text"
+                    placeholder="123"
+                    maxLength={3}
                     value={cvv}
-                    onChange={(e) => setCvv(e.target.value)}
+                    onChange={(e) => setCvv(e.target.value.replace(/\D/g, ""))}
                     className="w-full rounded-xl border-2 border-cream bg-white px-3 py-2 focus:outline-none"
+                    required
                   />
                 </div>
               </div>
 
-              <Button fullWidth size="lg" type="submit">
-                Pagar ${total.toFixed(2)}
+              <Button fullWidth size="lg" type="submit" disabled={processing}>
+                {processing ? "Procesando..." : "Pagar"}
               </Button>
             </form>
           </div>
