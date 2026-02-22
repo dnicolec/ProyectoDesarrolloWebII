@@ -19,6 +19,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import PasswordPage from "./pages/PasswordPage";
 import VerifyPage from "./pages/VerifyPage";
 import CouponDetailPage from "./pages/CouponDetailPage";
+import CheckoutPage from "./pages/CheckoutPage";
 
 function ProtectedRoute({ children, user, loading }) {
   const location = useLocation();
@@ -91,6 +92,8 @@ function App() {
           element={user ? <Navigate to="/" /> : <RegisterPage />}
         />
 
+        <Route path="/verify" element={<VerifyPage />} />
+
         {/* Rutas protegidas */}
 
         <Route element={<Layout user={user} onLogout={handleLogout} />}>
@@ -107,6 +110,14 @@ function App() {
             element={
               <ProtectedRoute user={user} loading={loading}>
                 <CouponDetailPage user={user} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute user={user} loading={loading}>
+                <CheckoutPage user={user} />
               </ProtectedRoute>
             }
           />

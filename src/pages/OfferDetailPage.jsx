@@ -11,6 +11,7 @@ import EntertainmentIcon from "../components/ui/icons/EntertainmentIcon";
 import ClothingStoreIcon from "../components/ui/icons/ClothingStoreIcon";
 import SearchIcon from "../components/ui/icons/SearchIcon";
 import emailjs from "@emailjs/browser";
+import { th } from "zod/locales";
 
 const categoryGradients = {
   restaurant: "from-coral to-[#ffb3ae]",
@@ -95,35 +96,19 @@ const OfferDetailPage = ({ user }) => {
       navigate("/login", { state: { from: location.pathname } });
       return;
     }
-    if (processing) return;
-
-    setProcessing(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      await solicitarCupon(offer.id);
-      setSuccess("¡Cupón agregado a tu cuenta!");
-      setYaLoTiene(true);
-      sendEmail(
-        user.displayName || "Usuario",
-        user.email,
-        offer.titulo,
-        offer.empresa?.nombre,
-      ).catch((e) => console.log("Error al enviar el correo", e));
-
-      // Recargar la oferta para actualizar el contador de disponibles
-      await cargarOferta();
-
-      setTimeout(() => navigate("/my-coupons"), 2500);
-      setProcessing(false);
-    } catch (err) {
-      console.error("Error:", err);
-      setError(err.message || "Error al agregar cupón");
-      setProcessing(false);
-    }
+    navigate("/checkout", {
+      state: {
+        offer: {
+          id: id,
+          title: offer.titulo,
+          companyName: offer.empresa?.nombre,
+          offerPrice: offer.descuento,
+          category: offer.rubro,
+        },
+        quantity: 1,
+      },
+    });
   };
-
   // --- Estados de carga ------------------------------------------------------
 
   if (loading) {
