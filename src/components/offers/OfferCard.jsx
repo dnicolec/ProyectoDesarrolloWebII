@@ -65,7 +65,7 @@ const OfferCard = ({ offer }) => {
       {/* Image */}
       <div className="relative h-36 sm:h-44 overflow-hidden">
         <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-          <Icon className="text-white/90" />
+          <Icon className="text-white/90" size={48}/>
         </div>
         <div className="absolute top-3 right-3 bg-coral text-white px-2.5 sm:px-3 py-1 rounded-[10px] font-extrabold text-xs sm:text-sm shadow-lg shadow-coral/40">
           {badgeTexto}
