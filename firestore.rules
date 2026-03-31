@@ -1,0 +1,142 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Funciones auxiliares --------------------------------------------------
+
+    function estaAutenticado() {
+      return request.auth != null;
+    }
+
+    // Lee el documento del usuario autenticado desde la colección 'usuarios'
+    function datosUsuario() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+    }
+
+    function obtenerRol() {
+      return datosUsuario().role;
+    }
+
+    function esAdminCuponera() {
+      return estaAutenticado() && obtenerRol() == 'admin_cuponera';
+    }
+
+    function esAdminEmpresa() {
+      return estaAutenticado() && obtenerRol() == 'admin_empresa';
+    }
+
+    function esEmpleado() {
+      return estaAutenticado() && obtenerRol() == 'empleado';
+    }
+
+    // Retorna el empresaId del admin_empresa o empleado autenticado
+    function miEmpresaId() {
+      return datosUsuario().empresaId;
+    }
+
+    // --- usuarios -------------------------------------------------------------
+    // El usuario ve/edita su propio documento; admin_cuponera accede a todos
+
+    match /usuarios/{userId} {
+      allow read:   if estaAutenticado() && (request.auth.uid == userId || esAdminCuponera());
+      allow create: if estaAutenticado() && request.auth.uid == userId;
+      allow update: if estaAutenticado() && (request.auth.uid == userId || esAdminCuponera());
+      allow delete: if esAdminCuponera();
+    }
+
+    // --- clientes -------------------------------------------------------------
+    // El cliente gestiona su propio perfil; admin_cuponera puede leer todos
+
+    match /clientes/{clienteId} {
+      allow read:   if estaAutenticado() && (request.auth.uid == clienteId || esAdminCuponera());
+      allow create: if estaAutenticado() && request.auth.uid == clienteId;
+      allow update: if estaAutenticado() && request.auth.uid == clienteId;
+      allow delete: if esAdminCuponera();
+    }
+
+    // --- empresas -------------------------------------------------------------
+    // Lectura pública para usuarios autenticados; solo admin_cuponera escribe
+
+    match /empresas/{empresaId} {
+      allow read:                  if estaAutenticado();
+      allow create, update, delete: if esAdminCuponera();
+    }
+
+    // --- empleados ------------------------------------------------------------
+    // admin_cuponera ve todos; admin_empresa solo ve/gestiona los de su empresa
+
+    match /empleados/{empleadoId} {
+      allow read: if esAdminCuponera()
+                  || (esAdminEmpresa() && miEmpresaId() == resource.data.empresaId);
+
+      // Al crear, valida que el empresaId del nuevo doc coincide con el del admin
+      allow create: if esAdminEmpresa()
+                    && miEmpresaId() == request.resource.data.empresaId;
+
+      allow update: if esAdminEmpresa()
+                    && miEmpresaId() == resource.data.empresaId;
+
+      allow delete: if esAdminEmpresa()
+                    && miEmpresaId() == resource.data.empresaId;
+    }
+
+    // --- ofertas --------------------------------------------------------------
+    // Lectura pública; admin_empresa gestiona las de su empresa; admin_cuponera aprueba
+
+    match /ofertas/{ofertaId} {
+      allow read: if estaAutenticado();
+
+      allow create: if esAdminEmpresa()
+                    && miEmpresaId() == request.resource.data.empresa_id;
+
+      // admin_empresa edita sus ofertas; admin_cuponera edita cualquiera (para aprobar/rechazar)
+      allow update: if esAdminCuponera()
+                    || (esAdminEmpresa() && miEmpresaId() == resource.data.empresa_id);
+
+      allow delete: if esAdminEmpresa()
+                    && miEmpresaId() == resource.data.empresa_id;
+    }
+
+    // --- cupones --------------------------------------------------------------
+    // El dueño ve sus cupones; admin_empresa ve los de su empresa vía oferta;
+    // empleado puede marcar como canjeado
+
+    match /cupones/{cuponId} {
+      allow read: if estaAutenticado() && (
+                    // El usuario propietario del cupón
+                    resource.data.usuario_id == request.auth.uid
+                    // admin_empresa: verifica que la oferta del cupón pertenece a su empresa
+                    || (esAdminEmpresa()
+                        && get(/databases/$(database)/documents/ofertas/$(resource.data.oferta_id))
+                              .data.empresa_id == miEmpresaId())
+                    || esAdminCuponera()
+                  );
+
+      // Creación cuando el usuario reclama una oferta
+      allow create: if estaAutenticado()
+                    && request.resource.data.usuario_id == request.auth.uid;
+
+      // Solo el empleado puede actualizar (marcar como canjeado)
+      allow update: if esEmpleado();
+
+      allow delete: if esAdminCuponera();
+    }
+
+    // --- historial_estados_oferta ---------------------------------------------
+    // Registro inmutable: solo lectura y creación para admins; nunca se edita ni borra
+
+    match /historial_estados_oferta/{historialId} {
+      allow read:   if esAdminCuponera() || esAdminEmpresa();
+      allow create: if esAdminCuponera() || esAdminEmpresa();
+      allow update, delete: if false;
+    }
+
+    // --- rubros ---------------------------------------------------------------
+    // Catálogo público; solo admin_cuponera puede modificarlo
+
+    match /rubros/{rubroId} {
+      allow read:  if estaAutenticado();
+      allow write: if esAdminCuponera();
+    }
+  }
+}
