@@ -55,10 +55,10 @@ service cloud.firestore {
     }
 
     // --- empresas -------------------------------------------------------------
-    // Lectura pública para usuarios autenticados; solo admin_cuponera escribe
+    // Lectura pública; solo admin_cuponera escribe
 
     match /empresas/{empresaId} {
-      allow read:                  if estaAutenticado();
+      allow read:                   if true;
       allow create, update, delete: if esAdminCuponera();
     }
 
@@ -84,7 +84,7 @@ service cloud.firestore {
     // Lectura pública; admin_empresa gestiona las de su empresa; admin_cuponera aprueba
 
     match /ofertas/{ofertaId} {
-      allow read: if estaAutenticado();
+      allow read: if true;
 
       allow create: if esAdminEmpresa()
                     && miEmpresaId() == request.resource.data.empresa_id;
@@ -98,19 +98,11 @@ service cloud.firestore {
     }
 
     // --- cupones --------------------------------------------------------------
-    // El dueño ve sus cupones; admin_empresa ve los de su empresa vía oferta;
-    // empleado puede marcar como canjeado
+    // Lectura pública: cualquiera puede ver cupones (sin sesión)
+    // Escritura restringida: solo usuarios autenticados con el rol correcto
 
     match /cupones/{cuponId} {
-      allow read: if estaAutenticado() && (
-                    // El usuario propietario del cupón
-                    resource.data.usuario_id == request.auth.uid
-                    // admin_empresa: verifica que la oferta del cupón pertenece a su empresa
-                    || (esAdminEmpresa()
-                        && get(/databases/$(database)/documents/ofertas/$(resource.data.oferta_id))
-                              .data.empresa_id == miEmpresaId())
-                    || esAdminCuponera()
-                  );
+      allow read: if true;
 
       // Creación cuando el usuario reclama una oferta
       allow create: if estaAutenticado()
@@ -135,7 +127,7 @@ service cloud.firestore {
     // Catálogo público; solo admin_cuponera puede modificarlo
 
     match /rubros/{rubroId} {
-      allow read:  if estaAutenticado();
+      allow read:  if true;
       allow write: if esAdminCuponera();
     }
   }
