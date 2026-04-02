@@ -5,12 +5,12 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
 } from "firebase/auth";
-import { auth } from "../lib/firebase";
-import Button from "../components/ui/Button";
-import Input from "../components/ui/Input";
-import Alert from "../components/ui/Alert";
-import EyeIcon from "../components/ui/icons/EyeIcon";
-import EyeOffIcon from "../components/ui/icons/EyeOffIcon";
+import { auth } from "../../lib/firebase";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import Alert from "../../components/ui/Alert";
+import EyeIcon from "../../components/ui/icons/EyeIcon";
+import EyeOffIcon from "../../components/ui/icons/EyeOffIcon";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -84,7 +84,7 @@ const LoginPage = () => {
   return (
     <div className="container-app py-10 max-w-md mx-auto">
       <h1 className="text-2xl font-semibold">Iniciar sesión</h1>
-      <p className="text-sm opacity-70 mt-1">Ingresa tu correo y contraseña.</p>
+      <p className="text-sm opacity-70 mt-1">Ingresa tu correo y contraseña</p>
 
       {error && (
         <Alert type="error" className="mt-4">

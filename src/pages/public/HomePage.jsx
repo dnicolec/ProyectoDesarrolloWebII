@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import OfferCard from "../components/offers/OfferCard";
-import OfferCardLoader from "../components/offers/OfferCardLoader";
-import SearchIcon from "../components/ui/icons/SearchIcon";
-import { obtenerRubros } from "../services/rubrosService";
-import { obtenerOfertasAprobadas } from "../services/ofertasService";
-import TagIcon from "../components/ui/icons/TagIcon";
+import OfferCard from "../../components/offers/OfferCard";
+import OfferCardLoader from "../../components/offers/OfferCardLoader";
+import SearchIcon from "../../components/ui/icons/SearchIcon";
+import { obtenerRubros } from "../../services/rubrosService";
+import { obtenerOfertasAprobadas } from "../../services/ofertasService";
+import TagIcon from "../../components/ui/icons/TagIcon";
 
 const HomePage = () => {
   const [categories, setCategories] = useState([]);

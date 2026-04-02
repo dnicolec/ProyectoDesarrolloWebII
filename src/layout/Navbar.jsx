@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useCart } from "../../context/CartContext";
-import Button from "../ui/Button";
-import MenuIcon from "../ui/icons/MenuIcon";
-import CloseIcon from "../ui/icons/CloseIcon";
-import CartIcon from "../ui/icons/CartIcon";
+import { useCart } from "../context/CartContext";
+import Button from "../components/ui/Button";
+import MenuIcon from "../components/ui/icons/MenuIcon";
+import CloseIcon from "../components/ui/icons/CloseIcon";
+import CartIcon from "../components/ui/icons/CartIcon";
 
 const Navbar = ({ user, onLogout }) => {
   const [menuOpen, setMenuOpen] = useState(false);

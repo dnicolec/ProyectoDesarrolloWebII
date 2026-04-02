@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Button, Badge, Alert } from "../components/ui";
-import { solicitarCupon } from "../services/cuponesService";
-import { useCart } from "../context/CartContext";
+import { Button, Badge, Alert } from "../../components/ui";
+import { solicitarCupon } from "../../services/cuponesService";
+import { useCart } from "../../context/CartContext";
 import emailjs from "@emailjs/browser";
 
 const CheckoutPage = ({ user }) => {

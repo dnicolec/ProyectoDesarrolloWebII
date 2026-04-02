@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { auth } from "../lib/firebase";
-import { authService } from "../services/authService";
+import { auth } from "../../lib/firebase";
+import { authService } from "../../services/authService";
 
-import Button from "../components/ui/Button";
-import Alert from "../components/ui/Alert";
+import Button from "../../components/ui/Button";
+import Alert from "../../components/ui/Alert";
 
 const VerifyPage = () => {
   const navigate = useNavigate();

@@ -3,14 +3,14 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { registerSchema } from "../validations/registerSchema";
-import { authService } from "../services/authService";
+import { registerSchema } from "../../validations/registerSchema";
+import { authService } from "../../services/authService";
 
-import Button from "../components/ui/Button";
-import Input from "../components/ui/Input";
-import Alert from "../components/ui/Alert";
-import EyeIcon from "../components/ui/icons/EyeIcon";
-import EyeOffIcon from "../components/ui/icons/EyeOffIcon";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import Alert from "../../components/ui/Alert";
+import EyeIcon from "../../components/ui/icons/EyeIcon";
+import EyeOffIcon from "../../components/ui/icons/EyeOffIcon";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -63,9 +63,9 @@ const RegisterPage = () => {
     <div className="container-app py-10 max-w-md mx-auto">
       <h1 className="text-4xl font-semibold font-Fraunces">Crear cuenta</h1>
       <p className="text-sm opacity-70 mt-1">
-        Te enviaremos un correo para verificar tu cuenta.
+        Te enviaremos un correo para verificar tu cuenta
       </p>
-
+      
       {serverError && (
         <Alert type="error" className="mt-4">
           {serverError}

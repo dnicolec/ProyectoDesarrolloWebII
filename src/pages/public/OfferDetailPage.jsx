@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Button, Badge, Alert } from "../components/ui";
-import { obtenerOfertaPorId } from "../services/ofertasService";
-import { useCart } from "../context/CartContext";
+import { Button, Badge, Alert } from "../../components/ui";
+import { obtenerOfertaPorId } from "../../services/ofertasService";
+import { useCart } from "../../context/CartContext";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { db, auth } from "../lib/firebase";
-import RestaurantIcon from "../components/ui/icons/RestaurantIcon";
-import VeterinaryIcon from "../components/ui/icons/VeterinaryIcon";
-import EntertainmentIcon from "../components/ui/icons/EntertainmentIcon";
-import ClothingStoreIcon from "../components/ui/icons/ClothingStoreIcon";
-import SearchIcon from "../components/ui/icons/SearchIcon";
+import { db, auth } from "../../lib/firebase";
+import RestaurantIcon from "../../components/ui/icons/RestaurantIcon";
+import VeterinaryIcon from "../../components/ui/icons/VeterinaryIcon";
+import EntertainmentIcon from "../../components/ui/icons/EntertainmentIcon";
+import ClothingStoreIcon from "../../components/ui/icons/ClothingStoreIcon";
+import SearchIcon from "../../components/ui/icons/SearchIcon";
 
 const categoryGradients = {
   restaurant: "from-coral to-[#ffb3ae]",
@@ -51,7 +51,6 @@ const OfferDetailPage = ({ user }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { addToCart } = useCart();
-
   const [offer, setOffer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -59,12 +58,12 @@ const OfferDetailPage = ({ user }) => {
   const [success, setSuccess] = useState("");
   const [cantidad, setCantidad] = useState(1);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const cargarOferta = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-
       const ofertaData = await obtenerOfertaPorId(id);
       setOffer(ofertaData);
     } catch (err) {
@@ -84,33 +83,28 @@ const OfferDetailPage = ({ user }) => {
       navigate("/login", { state: { from: location.pathname } });
       return;
     }
-
     try {
       setProcessing(true);
       setError("");
-
       // Agregar al carrito
       addToCart(offer, cantidad);
-
       setSuccess(`✓ Se agregó ${cantidad} cupón(es) al carrito`);
       setMostrarConfirmacion(true);
-
       // Limpiar cantidad después de agregar
       setCantidad(1);
-
       // Ocultar mensaje después de 3 segundos
       setTimeout(() => {
         setSuccess("");
       }, 3000);
     } catch (err) {
       console.error("Error:", err);
-      setError(err.message || "Error al agregarcupón");
+      setError(err.message || "Error al agregar cupón");
     } finally {
       setProcessing(false);
     }
   };
-  // --- Estados de carga ------------------------------------------------------
 
+  // --- Estados de carga ------------------------------------------------------
   if (loading) {
     return (
       <div className="container-app py-20 flex justify-center">
@@ -139,13 +133,10 @@ const OfferDetailPage = ({ user }) => {
   // cuponesGenerados = cuántos cupones se han entregado a usuarios
   const generados = offer.cuponesGenerados ?? 0;
   const disponibles = offer.cantidadCupones - generados;
-
   const descuentoTexto =
     offer.tipo === "porcentaje" ? `${offer.descuento}%` : `$${offer.descuento}`;
-
   const gradient = categoryGradients[offer.rubro] || "from-teal to-sage";
   const Icon = categoryIcons[offer.rubro] || RestaurantIcon;
-
   const fechaFin = new Date(offer.fecha_fin?.toDate?.() || offer.fecha_fin);
   const diasRestantes = Math.ceil(
     (fechaFin - new Date()) / (1000 * 60 * 60 * 24),
@@ -157,13 +148,14 @@ const OfferDetailPage = ({ user }) => {
     diasRestantes <= 0 ||
     cantidad < 1 ||
     cantidad > disponibles;
+
   const botonTexto = processing
     ? "Procesando..."
     : disponibles <= 0
-      ? "Sin cupones disponibles"
-      : diasRestantes <= 0
-        ? "Oferta vencida"
-        : "Agregar Cupones";
+    ? "Sin cupones disponibles"
+    : diasRestantes <= 0
+    ? "Oferta vencida"
+    : "Agregar Cupones";
 
   return (
     <div className="container-app py-8">
@@ -173,9 +165,18 @@ const OfferDetailPage = ({ user }) => {
           <div
             className={`relative rounded-2xl overflow-hidden h-72 bg-gradient-to-br ${gradient}`}
           >
-            <div className="w-full h-full flex items-center justify-center">
-              <Icon className="text-white/80" size={72} />
-            </div>
+            {offer.empresa?.logo && !imgError ? (
+              <img
+                src={offer.empresa.logo}
+                alt={offer.empresa?.nombre || 'Empresa'}
+                className="w-full h-full object-contain"
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <Icon className="text-white/80" size={72} />
+              </div>
+            )}
             <div className="absolute top-4 right-4 bg-coral text-white text-lg font-extrabold px-4 py-2 rounded-xl shadow-lg shadow-coral/40">
               {descuentoTexto}
             </div>
@@ -205,11 +206,9 @@ const OfferDetailPage = ({ user }) => {
         <div className="md:col-span-2">
           <div className="sticky top-24 bg-cream-bg rounded-2xl border border-cream p-6 space-y-5">
             <Badge variant="cream">{offer.empresa?.nombre}</Badge>
-
             <h1 className="font-serif text-2xl font-extrabold text-navy">
               {offer.titulo}
             </h1>
-
             <div className="text-center space-y-2">
               <div className="text-3xl font-black text-teal">
                 {descuentoTexto}

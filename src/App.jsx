@@ -9,19 +9,32 @@ import {
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./lib/firebase";
 import { CartProvider } from "./context/CartContext";
-import Layout from "./components/layout/Layout";
-import ScrollToTop from "./components/layout/ScrollTop";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import OfferDetailPage from "./pages/OfferDetailPage";
-import MyCouponsPage from "./pages/MyCouponsPage";
-import NotFoundPage from "./pages/NotFoundPage";
-import PasswordPage from "./pages/PasswordPage";
-import VerifyPage from "./pages/VerifyPage";
-import CouponDetailPage from "./pages/CouponDetailPage";
-import CheckoutPage from "./pages/CheckoutPage";
-import CartPage from "./pages/CartPage";
+
+// Layouts
+import Layout from "./layout/Layout";
+import AdminLayout from "./layout/AdminLayout";
+import ScrollToTop from "./layout/ScrollTop";
+
+// Public pages
+import HomePage from "./pages/public/HomePage";
+import OfferDetailPage from "./pages/public/OfferDetailPage";
+import NotFoundPage from "./pages/public/NotFoundPage";
+
+// Auth pages
+import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/RegisterPage";
+import VerifyPage from "./pages/auth/VerifyPage";
+import PasswordPage from "./pages/auth/PasswordPage";
+
+// Client pages
+import MyCouponsPage from "./pages/client/MyCouponsPage";
+import CouponDetailPage from "./pages/client/CouponDetailPage";
+import CheckoutPage from "./pages/client/CheckoutPage";
+import CartPage from "./pages/client/CartPage";
+
+// Admin pages
+import CompaniesPage from "./pages/admin/CompaniesPage";
+import CompanyDetailPage from "./pages/admin/CompanyDetailPage";
 
 function ProtectedRoute({ children, user, loading }) {
   const location = useLocation();
@@ -97,8 +110,21 @@ function App() {
 
           <Route path="/verify" element={<VerifyPage />} />
 
-          {/* Rutas protegidas */}
+          {/* Rutas del panel administrador */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute user={user} loading={loading}>
+                <AdminLayout user={user} />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="/admin/empresas" replace />} />
+            <Route path="empresas" element={<CompaniesPage />} />
+            <Route path="empresas/:id" element={<CompanyDetailPage />} />
+          </Route>
 
+          {/* Rutas protegidas */}
           <Route element={<Layout user={user} onLogout={handleLogout} />}>
             <Route
               path="/my-coupons"

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { authService } from "../services/authService";
+import { authService } from "../../services/authService";
 
-import Button from "../components/ui/Button";
-import Input from "../components/ui/Input";
-import Alert from "../components/ui/Alert";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import Alert from "../../components/ui/Alert";
 
 export default function PasswordPage() {
   const [correo, setCorreo] = useState("");

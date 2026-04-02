@@ -1,53 +1,52 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { Badge } from '../ui';
-
+import CartIcon from '../ui/icons/CartIcon';
 import RestaurantIcon from '../ui/icons/RestaurantIcon';
 import VeterinaryIcon from '../ui/icons/VeterinaryIcon';
 import EntertainmentIcon from '../ui/icons/EntertainmentIcon';
 import ClothingStoreIcon from '../ui/icons/ClothingStoreIcon';
-import CartIcon from '../ui/icons/CartIcon';
 
-const categoryGradients = {
-  'restaurant': 'from-coral to-[#ffb3ae]',
-  'veterinary':  'from-sage to-[#b8d9c9]',
-  'entertainment': 'from-teal to-[#5fc8c8]',
-  'clothing':  'from-navy to-[#2e5a8a]',
+const categoryBg = {
+  'restaurant': 'bg-coral/20',
+  'veterinary': 'bg-sage/20',
+  'entertainment': 'bg-teal/10',
+  'clothing': 'bg-navy/10',
 };
 
 const categoryIcons = {
   'restaurant': RestaurantIcon,
-  'veterinary':  VeterinaryIcon,
+  'veterinary': VeterinaryIcon,
   'entertainment': EntertainmentIcon,
-  'clothing':  ClothingStoreIcon,
+  'clothing': ClothingStoreIcon,
 };
 
 const OfferCard = ({ offer }) => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const[imgError, setImgError] = useState(false);
 
   // Mostrar costo del cupón si existe, si no mostrar el descuento
   let badgeTexto = '';
   if (offer.costo_cupon && offer.costo_cupon > 0) {
     badgeTexto = `$${offer.costo_cupon}`;
   } else {
-    if (offer.tipo === 'porcentaje') {
-      badgeTexto = `${offer.descuento}%`;
-    } else if (offer.tipo === 'monto') {
-      badgeTexto = `$${offer.descuento}`;
-    }
+    if (offer.tipo === 'porcentaje') badgeTexto = `${offer.descuento}%`;
+    else if (offer.tipo === 'monto') badgeTexto = `$${offer.descuento}`;
   }
 
   const fechaFin = new Date(offer.fecha_fin?.toDate?.() || offer.fecha_fin);
   const daysLeft = Math.ceil((fechaFin - new Date()) / (1000 * 60 * 60 * 24));
 
-  const gradient = categoryGradients[offer.rubro] || 'from-teal to-sage';
-  const Icon = categoryIcons[offer.rubro] || RestaurantIcon;
-
   // : disponibles = cantidadCupones - cuponesGenerados
   // cuponesGenerados empieza en 0 y sube de 1 en 1 cada vez que alguien toma un cupón
   const generados = offer.cuponesGenerados ?? 0;
   const disponibles = Math.max(0, offer.cantidadCupones - generados);
+
+  const logoUrl = offer.empresa?.logo || null;
+  const fallbackBg = categoryBg[offer.rubro] || 'bg-cream';
+  const Icon = categoryIcons[offer.rubro] || RestaurantIcon;
 
   const handleAgregarAlCarrito = (e) => {
     e.stopPropagation();
@@ -62,11 +61,22 @@ const OfferCard = ({ offer }) => {
                  transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]
                  hover:border-sage/20 group"
     >
-      {/* Image */}
+      {/* Imagen o ícono */}
       <div className="relative h-36 sm:h-44 overflow-hidden">
-        <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-          <Icon className="text-white/90" size={48}/>
-        </div>
+        {logoUrl && !imgError ? (
+          <img
+            src={logoUrl}
+            alt={offer.empresa?.nombre || 'Empresa'}
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          /* Fallback con ícono del rubro */
+          <div className={`w-full h-full ${fallbackBg} flex items-center justify-center`}>
+            <Icon className="text-white/80" size={48} />
+          </div>
+        )}
+        {/* Badge descuento */}
         <div className="absolute top-3 right-3 bg-coral text-white px-2.5 sm:px-3 py-1 rounded-[10px] font-extrabold text-xs sm:text-sm shadow-lg shadow-coral/40">
           {badgeTexto}
         </div>
@@ -105,7 +115,7 @@ const OfferCard = ({ offer }) => {
 
         {offer.costo_cupon && offer.costo_cupon > 0 && (
           <div className="text-xs font-semibold text-teal mt-2">
-            ${offer.costo_cupon}
+            ${offer.costo_cupon.toFixed(2)}
           </div>
         )}
 
@@ -127,7 +137,6 @@ const OfferCard = ({ offer }) => {
               </button>
             )}
           </div>
-          
           <div>
             {daysLeft > 0 ? (
               <span className="text-[0.7rem] sm:text-xs font-semibold text-teal">

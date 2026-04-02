@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext";
-import { Button, Badge, Alert } from "../components/ui";
-import SearchIcon from "../components/ui/icons/SearchIcon";
+import { useCart } from "../../context/CartContext";
+import { Button, Badge, Alert } from "../../components/ui";
+import SearchIcon from "../../components/ui/icons/SearchIcon";
 
 const CartPage = ({ user }) => {
   const navigate = useNavigate();

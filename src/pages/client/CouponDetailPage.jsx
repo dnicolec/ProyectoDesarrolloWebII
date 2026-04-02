@@ -2,26 +2,27 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../lib/firebase";
-import { Button, Badge, Alert } from "../components/ui";
-import SearchIcon from "../components/ui/icons/SearchIcon";
-import RestaurantIcon from "../components/ui/icons/RestaurantIcon";
-import VeterinaryIcon from "../components/ui/icons/VeterinaryIcon";
-import EntertainmentIcon from "../components/ui/icons/EntertainmentIcon";
-import ClothingStoreIcon from "../components/ui/icons/ClothingStoreIcon";
-import { obtenerCuponesUsuario } from "../services/cuponesService";
+import { auth, db } from "../../lib/firebase";
+import { Button, Badge, Alert } from "../../components/ui";
+import SearchIcon from "../../components/ui/icons/SearchIcon";
+import RestaurantIcon from "../../components/ui/icons/RestaurantIcon";
+import VeterinaryIcon from "../../components/ui/icons/VeterinaryIcon";
+import EntertainmentIcon from "../../components/ui/icons/EntertainmentIcon";
+import ClothingStoreIcon from "../../components/ui/icons/ClothingStoreIcon";
+import { obtenerCuponesUsuario } from "../../services/cuponesService";
+
 const categoryGradients = {
-  Restaurants: "from-coral to-[#ffb3ae]",
-  "Veterinary Clinics": "from-sage to-[#b8d9c9]",
-  Entertainment: "from-teal to-[#5fc8c8]",
-  "Clothing Stores": "from-navy to-[#2e5a8a]",
+  restaurant: "from-coral to-[#ffb3ae]",
+  veterinary: "from-sage to-[#b8d9c9]",
+  entertainment: "from-teal to-[#5fc8c8]",
+  clothing: "from-navy to-[#2e5a8a]",
 };
 
 const categoryIcons = {
-  Restaurants: RestaurantIcon,
-  "Veterinary Clinics": VeterinaryIcon,
-  Entertainment: EntertainmentIcon,
-  "Clothing Stores": ClothingStoreIcon,
+  restaurant: RestaurantIcon,
+  veterinary: VeterinaryIcon,
+  entertainment: EntertainmentIcon,
+  clothing: ClothingStoreIcon,
 };
 
 const statusConfig = {
@@ -82,8 +83,9 @@ const CouponDetailPage = ({ user }) => {
         status: estadoUI,
         title: cuponData.oferta?.titulo ?? "(Oferta no disponible)",
         description: cuponData.oferta?.descripcion ?? "",
-        category: cuponData.oferta?.rubro ?? "Restaurants",
+        category: cuponData.oferta?.rubro ?? "restaurant",
         companyName: cuponData.oferta?.empresa?.nombre ?? "N/A",
+        imageUrl: cuponData.oferta?.empresa?.logo || null,
         duiCliente: cuponData.duiCliente || duiUsuario,
         couponDeadline: fechaFin,
         costoCupon: cuponData.costo_cupon ?? 0,
@@ -270,7 +272,7 @@ const CouponDetailPage = ({ user }) => {
             <div>
               <h2 className="font-bold text-navy mb-2">Código de cupón</h2>{" "}
               {coupon.status === "asignado" ||
-              coupon.status === "disponibles" ? (
+                coupon.status === "disponibles" ? (
                 <div className="text-3xl font-black text-teal tracking-tighter">
                   {coupon.id}
                 </div>

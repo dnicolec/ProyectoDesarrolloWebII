@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { Button, Alert } from "../components/ui";
-import CouponCard from "../components/coupons/CouponCard";
-import TagIcon from "../components/ui/icons/TagIcon";
-import { obtenerCuponesUsuario } from "../services/cuponesService";
-import CouponCardLoader from "../components/coupons/CouponCardLoader";
+import { Button, Alert } from "../../components/ui";
+import CouponCard from "../../components/coupons/CouponCard";
+import TagIcon from "../../components/ui/icons/TagIcon";
+import { obtenerCuponesUsuario } from "../../services/cuponesService";
+import CouponCardLoader from "../../components/coupons/CouponCardLoader";
 
 const MyCouponsPage = ({ user }) => {
   const [coupons, setCoupons] = useState([]);

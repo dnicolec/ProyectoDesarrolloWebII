@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui';
-import SearchIcon from '../components/ui/icons/SearchIcon';
+import { Button } from '../../components/ui';
+import SearchIcon from '../../components/ui/icons/SearchIcon';
 
 const NotFoundPage = () => {
   const navigate = useNavigate();
