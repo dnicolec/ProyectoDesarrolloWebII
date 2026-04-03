@@ -2,6 +2,10 @@ import {
   collection, 
   getDocs, 
   getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  serverTimestamp,
   doc
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -43,3 +47,27 @@ export const obtenerRubroPorId = async (rubroId) => {
         throw error;
     }
 };
+
+// Crear un nuevo rubro
+export const crearRubro = async (datos) => {
+  const ref = await addDoc(collection(db, 'rubros'), {
+    ...datos,
+    creadoEn: serverTimestamp(),
+  });
+  return ref.id;
+};
+
+// Actualizar rubro existente
+export const actualizarRubro = async (rubroId, datos) => {
+  await updateDoc(doc(db, 'rubros', rubroId), {
+    ...datos,
+    actualizadoEn: serverTimestamp(),
+  });
+};
+
+// Eliminar rubro
+export const eliminarRubro = async (rubroId) => {
+  await deleteDoc(doc(db, 'rubros', rubroId));
+};
+
+

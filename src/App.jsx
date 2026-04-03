@@ -14,6 +14,7 @@ import { CartProvider } from "./context/CartContext";
 import Layout from "./layout/Layout";
 import AdminLayout from "./layout/AdminLayout";
 import ScrollToTop from "./layout/ScrollTop";
+import CompanyLayout from "./layout/CompanyLayout";
 
 // Public pages
 import HomePage from "./pages/public/HomePage";
@@ -35,6 +36,11 @@ import CartPage from "./pages/client/CartPage";
 // Admin pages
 import CompaniesPage from "./pages/admin/CompaniesPage";
 import CompanyDetailPage from "./pages/admin/CompanyDetailPage";
+import RubrosPage from "./pages/admin/RubrosPage";
+
+// Company pages
+import OffersPage from "./pages/company/OffersPage";
+
 
 function ProtectedRoute({ children, user, loading }) {
   const location = useLocation();
@@ -122,6 +128,20 @@ function App() {
             <Route index element={<Navigate to="/admin/empresas" replace />} />
             <Route path="empresas" element={<CompaniesPage />} />
             <Route path="empresas/:id" element={<CompanyDetailPage />} />
+            <Route path="rubros" element={<RubrosPage />} />
+          </Route>
+
+          {/* Rutas del panel de la Empresa */}
+          <Route
+            path="/empresa"
+            element={
+              <ProtectedRoute user={user} loading={loading}>
+                <CompanyLayout user={user} />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="/empresa/ofertas" replace />} />
+            <Route path="ofertas" element={<OffersPage user={user} />} />
           </Route>
 
           {/* Rutas protegidas */}

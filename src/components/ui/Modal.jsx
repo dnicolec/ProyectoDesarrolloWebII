@@ -48,7 +48,7 @@ const Modal = ({
       <div
         className={`
           relative bg-white rounded-2xl shadow-2xl w-full ${sizes[size]}
-          p-6 animate-slide-up
+          p-6 animate-slide-up max-h-[90vh] overflow-hidden flex flex-col
         `}
       >
         {(title || showClose) && (
@@ -69,8 +69,10 @@ const Modal = ({
             )}
           </div>
         )}
+        <div className='overflow-y-auto flex-1 px-6 pb-6'>
 
-        {children}
+          {children}
+        </div>
       </div>
     </div>
   );

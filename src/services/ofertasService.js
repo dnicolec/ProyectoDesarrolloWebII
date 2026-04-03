@@ -2,6 +2,9 @@ import {
     collection, 
     getDocs, 
     getDoc,
+    addDoc,
+    updateDoc,
+    serverTimestamp, 
     doc,
     query,
     where
@@ -103,4 +106,25 @@ export const obtenerOfertasPorEmpresa = async (empresaId) => {
         console.error('Error obteniendo ofertas por empresa:', error);
         throw error;
     }
+};
+
+// Crear nueva oferta
+export const crearOferta = async (empresaId, datos) => {
+  const ref = await addDoc(collection(db, 'ofertas'), {
+    ...datos,
+    empresa_id: empresaId,
+    estado: 'en_espera',
+    cuponesGenerados: 0,
+    creadoEn: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  return ref.id;
+};
+
+// Actualizar oferta existente
+export const actualizarOferta = async (ofertaId, datos) => {
+  await updateDoc(doc(db, 'ofertas', ofertaId), {
+    ...datos,
+    updatedAt: serverTimestamp(),
+  });
 };
