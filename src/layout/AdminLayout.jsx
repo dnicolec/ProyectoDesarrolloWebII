@@ -17,6 +17,13 @@ const navItems = [
       { label: 'Por aprobar', path: '/admin/ofertas/pendientes', dot: 'cream' },
     ],
   },
+
+  {
+    section: 'Cuenta',
+    items: [
+      { label: 'Cambiar contraseña', path: '/password', dot: 'sage' },
+    ],
+  }
 ];
 
 const dotColors = {

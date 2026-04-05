@@ -26,7 +26,7 @@ export const authService = {
       correo,
       direccion,
       dui,
-      role: 'usuario',
+      role: 'cliente',
       cupones: [],
       createdAt: serverTimestamp(),
       photoURL: null

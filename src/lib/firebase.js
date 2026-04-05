@@ -3,12 +3,13 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyB1HG4V93CCbpURChPyF_9dYLZW8vNXdUk",
+  authDomain: "superdeuper-dw2.firebaseapp.com",
+  projectId: "superdeuper-dw2",
+  storageBucket: "superdeuper-dw2.firebasestorage.app",
+  messagingSenderId: "81734189463",
+  appId: "1:81734189463:web:eae1d3a4b22875609944d2",
+  measurementId: "G-59R7ZYVPN4"
 };
 
 const app = initializeApp(firebaseConfig);

@@ -77,6 +77,7 @@ export default function CompaniesPage() {
         </div>
       </div>
 
+
       <div className="bg-white border border-cream rounded-xl overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-cream gap-3">
           <p className="text-sm font-semibold text-navy">Todas las empresas</p>
@@ -127,7 +128,7 @@ export default function CompaniesPage() {
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button onClick={() => handleEditar(empresa)} className="text-xs text-navy/40 hover:text-navy transition-colors">Editar</button>
                     <span className="text-cream">|</span>
-                    <button onClick={() => navigate(`/admin/companies/${empresa.id}`)} className="text-xs text-teal font-medium hover:text-teal-hover transition-colors">Ver detalle</button>
+                    <button onClick={() => navigate(`/admin/empresas/${empresa.id}`)} className="text-xs text-teal font-medium hover:text-teal-hover transition-colors">Ver detalle</button>
                   </div>
                 </div>
               );

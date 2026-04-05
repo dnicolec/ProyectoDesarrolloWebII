@@ -11,6 +11,29 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
+
+//Aprobar una oferta
+export async function aprobarOferta(ofertaId) {
+  const ofertaRef = doc(db, "ofertas", ofertaId);
+
+  await updateDoc(ofertaRef, {
+    estado: "aprobada",
+    motivo_rechazo: "",
+    updatedAt: serverTimestamp(),
+  });
+}
+
+//Rechazar una oferta
+export async function rechazarOferta(ofertaId, motivo) {
+  const ofertaRef = doc(db, "ofertas", ofertaId);
+
+  await updateDoc(ofertaRef, {
+    estado: "rechazada",
+    motivo_rechazo: motivo,
+    updatedAt: serverTimestamp(),
+  });
+}
+
 // Obtener todas las ofertas aprobadas
 export const obtenerOfertasAprobadas = async () => {
     try {

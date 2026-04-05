@@ -1,9 +1,10 @@
 import { 
-    getDoc,
-    doc,
-    setDoc,
-    updateDoc,
-    serverTimestamp
+  getDoc,
+  getDocs,
+  doc,
+  setDoc,
+  updateDoc,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
 
@@ -16,7 +17,7 @@ export const crearUsuario = async (uid, email, nombre) => {
             uid,
             email,
             nombre: nombre || email.split('@')[0],
-            role: 'usuario',
+            role: 'cliente',
             cupones: [],
             createdAt: serverTimestamp(),
             photoURL: null
@@ -93,3 +94,4 @@ export const actualizarPerfil = async (datos) => {
         throw error;
     }
 };
+

@@ -10,6 +10,12 @@ const navItems = [
       { label: 'Empleados', path: '/empresa/empleados', dot: 'teal' },
     ],
   },
+  {
+    section: 'Cuenta',
+    items: [
+      { label: 'Cambiar contraseña', path: '/password', dot: 'sage' },
+  ],
+  }
 ];
 
 const dotColors = {

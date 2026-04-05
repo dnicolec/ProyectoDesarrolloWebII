@@ -4,7 +4,11 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
+  signOut,
 } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../lib/firebase";
+import { getRutaPorRol } from "../../helpers/roleHelper";
 import { auth } from "../../lib/firebase";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
@@ -21,21 +25,17 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const redirectAfterLogin = () => {
-    navigate(location.state?.from || "/");
-  };
+  // const blockIfNotVerified = async (user) => {
+  //   await user.reload();
 
-  const blockIfNotVerified = async (user) => {
-    await user.reload();
-
-    if (!user.emailVerified) {
-      await signOut(auth);
-      navigate("/verify", {
-        state: { email: user.email, from: location.state?.from || "/" },
-      });
-      throw new Error("not-verified");
-    }
-  };
+  //   if (!user.emailVerified) {
+  //     await signOut(auth);
+  //     navigate("/verify", {
+  //       state: { email: user.email, from: location.state?.from || "/" },
+  //     });
+  //     throw new Error("not-verified");
+  //   }
+  // };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -47,10 +47,26 @@ const LoginPage = () => {
         throw new Error("Por favor completa todos los campos");
       }
 
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate(location.state?.from || "/");
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      //await blockIfNotVerified(cred.user);
+
+      //Obtener rol desde Firestore
+      const userRef = doc(db, "usuarios", cred.user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        throw new Error("Usuario no registrado");
+      }
+
+      const profile = userSnap.data();
+      const ruta = getRutaPorRol(profile.role);
+
+      //Redireccionar según rol
+      navigate(location.state?.from || ruta, { replace: true });
+
     } catch (err) {
       let mensaje = "Error al ingresar";
+
       if (err.code === "auth/invalid-credential") {
         mensaje = "Email o contraseña incorrectos";
       } else if (err.code === "auth/user-not-found") {

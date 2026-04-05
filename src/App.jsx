@@ -1,13 +1,8 @@
-import { useState, useEffect } from "react";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-  useLocation,
-} from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "./lib/firebase";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import { authService } from "./services/authService";
+import RoleRoute from "./routes/RoleRoute";
+import { ROLES } from "./helpers/roleHelper";
 import { CartProvider } from "./context/CartContext";
 
 // Layouts
@@ -37,52 +32,24 @@ import CartPage from "./pages/client/CartPage";
 import CompaniesPage from "./pages/admin/CompaniesPage";
 import CompanyDetailPage from "./pages/admin/CompanyDetailPage";
 import RubrosPage from "./pages/admin/RubrosPage";
+import ClientsPage from "./pages/admin/ClientsPage";
+import ClientDetailPage from "./pages/admin/ClientDetailPage";
 
 // Company pages
 import OffersPage from "./pages/company/OffersPage";
 
 
-function ProtectedRoute({ children, user, loading }) {
-  const location = useLocation();
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Cargando...</p>
-      </div>
-    );
-  }
-  return user ? (
-    children
-  ) : (
-    <Navigate to="/login" state={{ from: location.pathname }} />
-  );
-}
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // Monitorear cambios de autenticación
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
+  const { user, loading } = useAuth();
 
   const handleLogout = async () => {
     try {
-      await auth.signOut();
-      setUser(null);
+      await authService.logout();
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     }
   };
-
-  // Componente para rutas protegidas definido fuera de App para evitar crear
-  // componentes durante el render.
 
   if (loading) {
     return (
@@ -107,11 +74,11 @@ function App() {
           {/* Rutas de autenticación */}
           <Route
             path="/login"
-            element={user ? <Navigate to="/" /> : <LoginPage />}
+            element={user ? <Navigate to="/" replace /> : <LoginPage />}
           />
           <Route
             path="/register"
-            element={user ? <Navigate to="/" /> : <RegisterPage />}
+            element={user ? <Navigate to="/" replace /> : <RegisterPage />}
           />
 
           <Route path="/verify" element={<VerifyPage />} />
@@ -120,24 +87,28 @@ function App() {
           <Route
             path="/admin"
             element={
-              <ProtectedRoute user={user} loading={loading}>
+              <RoleRoute allowedRoles={[ROLES.ADMIN_CUPONERA]}>
                 <AdminLayout user={user} />
-              </ProtectedRoute>
+              </RoleRoute>
             }
           >
             <Route index element={<Navigate to="/admin/empresas" replace />} />
             <Route path="empresas" element={<CompaniesPage />} />
             <Route path="empresas/:id" element={<CompanyDetailPage />} />
             <Route path="rubros" element={<RubrosPage />} />
+
+          <Route path="clientes" element={<ClientsPage />} />
+          <Route path="clientes/:id" element={<ClientDetailPage />} />
+
           </Route>
 
           {/* Rutas del panel de la Empresa */}
           <Route
             path="/empresa"
             element={
-              <ProtectedRoute user={user} loading={loading}>
+              <RoleRoute allowedRoles={[ROLES.ADMIN_EMPRESA]}>
                 <CompanyLayout user={user} />
-              </ProtectedRoute>
+              </RoleRoute>
             }
           >
             <Route index element={<Navigate to="/empresa/ofertas" replace />} />
@@ -149,33 +120,41 @@ function App() {
             <Route
               path="/my-coupons"
               element={
-                <ProtectedRoute user={user} loading={loading}>
+                <RoleRoute allowedRoles={[ROLES.CLIENTE]}>
                   <MyCouponsPage user={user} />
-                </ProtectedRoute>
+                </RoleRoute>
               }
             />
             <Route
               path="/my-coupons/:id"
               element={
-                <ProtectedRoute user={user} loading={loading}>
+                <RoleRoute allowedRoles={[ROLES.CLIENTE]}>
                   <CouponDetailPage user={user} />
-                </ProtectedRoute>
+                </RoleRoute>
               }
             />
             <Route
               path="/cart"
               element={
-                <ProtectedRoute user={user} loading={loading}>
+                <RoleRoute allowedRoles={[ROLES.CLIENTE]}>
                   <CartPage user={user} />
-                </ProtectedRoute>
+                </RoleRoute>
               }
             />
             <Route
               path="/checkout"
               element={
-                <ProtectedRoute user={user} loading={loading}>
+                <RoleRoute allowedRoles={[ROLES.CLIENTE]}>
                   <CheckoutPage user={user} />
-                </ProtectedRoute>
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/password"
+              element={
+                <RoleRoute allowedRoles={[ROLES.CLIENTE, ROLES.ADMIN_CUPONERA, ROLES.ADMIN_EMPRESA, ROLES.EMPLEADO]}>
+                <PasswordPage />
+                </RoleRoute>
               }
             />
           </Route>
