@@ -83,6 +83,8 @@ function App() {
 
           <Route path="/verify" element={<VerifyPage />} />
 
+          <Route path="/password" element={<PasswordPage />} />
+
           {/* Rutas del panel administrador */}
           <Route
             path="/admin"
@@ -120,7 +122,7 @@ function App() {
             <Route
               path="/my-coupons"
               element={
-                <RoleRoute allowedRoles={[ROLES.CLIENTE]}>
+                <RoleRoute allowedRoles={[ROLES.CLIENTE]} showAccessDenied>
                   <MyCouponsPage user={user} />
                 </RoleRoute>
               }
@@ -128,7 +130,7 @@ function App() {
             <Route
               path="/my-coupons/:id"
               element={
-                <RoleRoute allowedRoles={[ROLES.CLIENTE]}>
+                <RoleRoute allowedRoles={[ROLES.CLIENTE]} showAccessDenied>
                   <CouponDetailPage user={user} />
                 </RoleRoute>
               }
@@ -146,14 +148,6 @@ function App() {
               element={
                 <RoleRoute allowedRoles={[ROLES.CLIENTE]}>
                   <CheckoutPage user={user} />
-                </RoleRoute>
-              }
-            />
-            <Route
-              path="/password"
-              element={
-                <RoleRoute allowedRoles={[ROLES.CLIENTE, ROLES.ADMIN_CUPONERA, ROLES.ADMIN_EMPRESA, ROLES.EMPLEADO]}>
-                <PasswordPage />
                 </RoleRoute>
               }
             />

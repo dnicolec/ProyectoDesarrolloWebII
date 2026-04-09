@@ -29,6 +29,8 @@ yarn-error.log*
 *.sw?
 .env.example
 .env.example
+/.claude
+.DS_Store
 
 #macOS
 .DS_Store

@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { authService } from "../../services/authService";
+import { getRutaPorRol } from "../../helpers/roleHelper";
 import {
   EmailAuthProvider,
   reauthenticateWithCredential,
@@ -13,7 +14,8 @@ import Input from "../../components/ui/Input";
 import Alert from "../../components/ui/Alert";
 
 export default function PasswordPage() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+  const navigate = useNavigate();
 
   // ---- Estado para usuario autenticado (cambiar contraseña) ----
   const [currentPassword, setCurrentPassword] = useState("");
@@ -61,10 +63,10 @@ export default function PasswordPage() {
       // Cambiar la contraseña
       await authService.changePassword(newPassword);
 
-      setMsg("¡Contraseña actualizada exitosamente!");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+      navigate(getRutaPorRol(role));
     } catch (e2) {
       if (
         e2?.code === "auth/wrong-password" ||
@@ -125,11 +127,6 @@ export default function PasswordPage() {
               {err}
             </Alert>
           )}
-          {msg && (
-            <Alert type="success" className="mt-4">
-              {msg}
-            </Alert>
-          )}
 
           <form onSubmit={handleChangePassword} className="mt-6 space-y-4">
             <div>
@@ -184,6 +181,16 @@ export default function PasswordPage() {
             >
               {loading ? "Actualizando..." : "Actualizar contraseña"}
             </Button>
+
+            <p className="text-center text-sm text-navy/60 mt-4">
+              <button
+                type="button"
+                onClick={() => navigate(getRutaPorRol(role))}
+                className="text-teal font-semibold hover:underline"
+              >
+                Volver al inicio
+              </button>
+            </p>
           </form>
         </>
       ) : (
