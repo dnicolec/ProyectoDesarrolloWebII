@@ -80,6 +80,7 @@ const CouponDetailPage = ({ user }) => {
 
       setCoupon({
         id: cuponData.id,
+        code: cuponData.codigo,
         status: estadoUI,
         title: cuponData.oferta?.titulo ?? "(Oferta no disponible)",
         description: cuponData.oferta?.descripcion ?? "",
@@ -202,7 +203,7 @@ const CouponDetailPage = ({ user }) => {
     pdf.setTextColor(navy[0], navy[1], navy[2]);
     pdf.setFontSize(26);
     pdf.setFont("courier", "bold");
-    pdf.text(coupon.id, pageWidth / 2, yPos + 30, { align: "center" });
+    pdf.text(coupon.code, pageWidth / 2, yPos + 30, { align: "center" });
     yPos += 55;
 
     pdf.setTextColor(salmon[0], salmon[1], salmon[2]);
@@ -272,9 +273,9 @@ const CouponDetailPage = ({ user }) => {
             <div>
               <h2 className="font-bold text-navy mb-2">Código de cupón</h2>{" "}
               {coupon.status === "asignado" ||
-                coupon.status === "disponibles" ? (
+              coupon.status === "disponibles" ? (
                 <div className="text-3xl font-black text-teal tracking-tighter">
-                  {coupon.id}
+                  {coupon.code}
                 </div>
               ) : (
                 <div className="text-3xl font-black text-teal tracking-tighter">
@@ -306,7 +307,9 @@ const CouponDetailPage = ({ user }) => {
               {coupon.costoCupon !== undefined && coupon.costoCupon > 0 && (
                 <p>
                   <strong>Costo del cupón:</strong>{" "}
-                  <span className="text-teal font-semibold">${coupon.costoCupon}</span>
+                  <span className="text-teal font-semibold">
+                    ${coupon.costoCupon}
+                  </span>
                 </p>
               )}
             </div>

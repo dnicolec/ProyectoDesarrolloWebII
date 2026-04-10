@@ -63,7 +63,6 @@ const LoginPage = () => {
 
       //Redireccionar según rol
       navigate(location.state?.from || ruta, { replace: true });
-
     } catch (err) {
       let mensaje = "Error al ingresar";
 
@@ -87,8 +86,21 @@ const LoginPage = () => {
 
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      navigate(location.state?.from || "/");
+      const cred = await signInWithPopup(auth, provider);
+
+      //Obtener rol desde Firestore
+      const userRef = doc(db, "usuarios", cred.user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const profile = userSnap.data();
+        const ruta = getRutaPorRol(profile.role);
+
+        //Redireccionar según rol
+        navigate(location.state?.from || ruta, { replace: true });
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       console.error("Error con Google:", err);
       setError("Error al ingresar con Google");
