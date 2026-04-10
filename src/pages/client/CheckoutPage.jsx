@@ -54,28 +54,42 @@ const CheckoutPage = ({ user }) => {
 
     try {
       // Procesar cada oferta en el carrito
-      for (const offer of cart) {
-        await solicitarCupon(offer.id, offer.quantity);
-        
-        // Enviar email para cada oferta
-        await emailjs.send(
-          "service_mhbzvcs",
-          "template_b3g46es",
-          {
-            user_name: user?.displayName || "Usuario",
-            user_email: user?.email,
-            offer_title: offer.titulo,
-            company_name: offer.empresa?.nombre,
-          },
-          "bRucC3jMVo9zYDT5b",
-        );
+      for (const item of cart) {
+        await solicitarCupon(item.id, item.quantity);
       }
 
+      const detalleProductos = cart
+        .map((item, index) => {
+          const subtotal = (item.costo_cupon * item.quantity).toFixed(2);
+          const empresaNombre =
+            item.empresa?.nombre || item.rubro || "La Cuponera";
+          return `Producto ${index + 1}: ${item.titulo.toUpperCase()} 
+            Empresa: ${empresaNombre}
+            Cantidad: ${item.quantity} unidades
+            Subtotal: $${subtotal}
+            --------------------------`;
+        })
+        .join("\n\n");
+
+      // Enviar email para cada oferta
+      await emailjs.send(
+        "service_mhbzvcs",
+        "template_b3g46es",
+        {
+          user_name: user?.displayName,
+          user_email: user?.email,
+          offer_title: "Compra de La Cuponera",
+          company_name: "La Cuponera",
+          productos_detalle: detalleProductos,
+        },
+        "bRucC3jMVo9zYDT5b",
+      );
+
       setSuccess("✓ Compra realizada exitosamente");
-      
+
       // Limpiar carrito
       clearCart();
-      
+
       // Redirigir a mis cupones después de 2 segundos
       setTimeout(() => {
         navigate("/my-coupons", { state: { success: true } });
@@ -103,7 +117,9 @@ const CheckoutPage = ({ user }) => {
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <Badge variant="cream">{item.empresa?.nombre || item.rubro}</Badge>
+                  <Badge variant="cream">
+                    {item.empresa?.nombre || item.rubro}
+                  </Badge>
                   <h3 className="font-serif font-bold text-lg text-navy mt-2">
                     {item.titulo}
                   </h3>
@@ -111,9 +127,23 @@ const CheckoutPage = ({ user }) => {
               </div>
 
               <div className="flex justify-between text-sm text-navy/70 border-t border-cream pt-3">
-                <span>Cantidad: <span className="font-semibold">{item.quantity}</span></span>
-                <span>Costo: <span className="font-semibold text-teal">${item.costo_cupon}</span> c/u</span>
-                <span>Subtotal: <span className="font-bold text-teal">${(item.costo_cupon * item.quantity).toFixed(2)}</span></span>
+                <span>
+                  Cantidad:{" "}
+                  <span className="font-semibold">{item.quantity}</span>
+                </span>
+                <span>
+                  Costo:{" "}
+                  <span className="font-semibold text-teal">
+                    ${item.costo_cupon}
+                  </span>{" "}
+                  c/u
+                </span>
+                <span>
+                  Subtotal:{" "}
+                  <span className="font-bold text-teal">
+                    ${(item.costo_cupon * item.quantity).toFixed(2)}
+                  </span>
+                </span>
               </div>
             </div>
           ))}
@@ -152,8 +182,12 @@ const CheckoutPage = ({ user }) => {
 
             {/* Formulario */}
             <form onSubmit={handlePayment} className="space-y-4">
-              {error && <Alert type="error" title="Error" description={error} />}
-              {success && <Alert type="success" title="Éxito" description={success} />}
+              {error && (
+                <Alert type="error" title="Error" description={error} />
+              )}
+              {success && (
+                <Alert type="success" title="Éxito" description={success} />
+              )}
 
               <div>
                 <label className="block text-xs text-navy/50 mb-1">
@@ -176,7 +210,9 @@ const CheckoutPage = ({ user }) => {
 
               <div className="flex gap-3">
                 <div className="w-1/2">
-                  <label className="block text-xs text-navy/50 mb-1">MM/AA</label>
+                  <label className="block text-xs text-navy/50 mb-1">
+                    MM/AA
+                  </label>
                   <input
                     type="text"
                     placeholder="MM/AA"
@@ -186,7 +222,7 @@ const CheckoutPage = ({ user }) => {
                       setExpiry(
                         e.target.value
                           .replace(/[^\d]/g, "")
-                          .replace(/^(\d{2})(\d)/, "$1/$2")
+                          .replace(/^(\d{2})(\d)/, "$1/$2"),
                       )
                     }
                     className="w-full rounded-xl border-2 border-cream bg-white px-3 py-2 focus:outline-none"

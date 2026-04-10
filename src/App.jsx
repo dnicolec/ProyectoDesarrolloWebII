@@ -10,6 +10,7 @@ import Layout from "./layout/Layout";
 import AdminLayout from "./layout/AdminLayout";
 import ScrollToTop from "./layout/ScrollTop";
 import CompanyLayout from "./layout/CompanyLayout";
+import EmployeeLayout from "./layout/EmployeeLayout";
 
 // Public pages
 import HomePage from "./pages/public/HomePage";
@@ -37,8 +38,11 @@ import ClientDetailPage from "./pages/admin/ClientDetailPage";
 
 // Company pages
 import OffersPage from "./pages/company/OffersPage";
+import EmployeesPage from "./pages/company/EmployeesPage";
 
-
+// Employee pages
+import RedeemCouponsPage from "./pages/employee/RedeemCouponsPage";
+import ChangePassPage from "./pages/employee/ChangePassPage";
 
 function App() {
   const { user, loading } = useAuth();
@@ -67,7 +71,10 @@ function App() {
           {/* Rutas públicas */}
           <Route element={<Layout user={user} onLogout={handleLogout} />}>
             <Route path="/" element={<HomePage />} />
-            <Route path="/offer/:id" element={<OfferDetailPage user={user} />} />
+            <Route
+              path="/offer/:id"
+              element={<OfferDetailPage user={user} />}
+            />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
 
@@ -99,9 +106,8 @@ function App() {
             <Route path="empresas/:id" element={<CompanyDetailPage />} />
             <Route path="rubros" element={<RubrosPage />} />
 
-          <Route path="clientes" element={<ClientsPage />} />
-          <Route path="clientes/:id" element={<ClientDetailPage />} />
-
+            <Route path="clientes" element={<ClientsPage />} />
+            <Route path="clientes/:id" element={<ClientDetailPage />} />
           </Route>
 
           {/* Rutas del panel de la Empresa */}
@@ -115,6 +121,20 @@ function App() {
           >
             <Route index element={<Navigate to="/empresa/ofertas" replace />} />
             <Route path="ofertas" element={<OffersPage user={user} />} />
+            <Route path="empleados" element={<EmployeesPage user={user} />} />
+          </Route>
+
+          {/* Rutas del panel de empleado */}
+          <Route
+            path="/empleado"
+            element={
+              <RoleRoute allowedRoles={[ROLES.EMPLEADO]}>
+                <EmployeeLayout user={user} />
+              </RoleRoute>
+            }
+          >
+            <Route index element={<RedeemCouponsPage user={user} />} />
+            <Route path="password" element={<ChangePassPage user={user} />} />
           </Route>
 
           {/* Rutas protegidas */}

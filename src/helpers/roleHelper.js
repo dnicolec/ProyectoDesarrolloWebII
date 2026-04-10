@@ -1,25 +1,25 @@
 export const ROLES = {
-    ADMIN_CUPONERA: 'admin_cuponera',
-    ADMIN_EMPRESA: 'admin_empresa',
-    EMPLEADO: 'empleado',
-    CLIENTE: 'cliente',
+  ADMIN_CUPONERA: "admin_cuponera",
+  ADMIN_EMPRESA: "admin_empresa",
+  EMPLEADO: "empleado",
+  CLIENTE: "cliente",
 };
 
 const RUTAS_POR_ROL = {
-    [ROLES.ADMIN_CUPONERA]: '/admin',
-    [ROLES.ADMIN_EMPRESA]: '/empresa',
-    [ROLES.EMPLEADO]: '/empleado',
-    [ROLES.CLIENTE]: '/',
+  [ROLES.ADMIN_CUPONERA]: "/admin",
+  [ROLES.ADMIN_EMPRESA]: "/empresa",
+  [ROLES.EMPLEADO]: "/empleado",
+  [ROLES.CLIENTE]: "/",
 };
 
 // Retorna la ruta de inicio segun el rol del usuario
 export const getRutaPorRol = (rol) => {
-    return RUTAS_POR_ROL[rol] ?? '/';
+  return RUTAS_POR_ROL[rol] ?? "/";
 };
 
 // Verdadero si el rol tiene capacidades de administración
 export const esAdmin = (rol) => {
-    return rol === ROLES.ADMIN_CUPONERA || rol === ROLES.ADMIN_EMPRESA;
+  return rol === ROLES.ADMIN_CUPONERA || rol === ROLES.ADMIN_EMPRESA;
 };
 
 export const esAdminCuponera = (rol) => rol === ROLES.ADMIN_CUPONERA;
