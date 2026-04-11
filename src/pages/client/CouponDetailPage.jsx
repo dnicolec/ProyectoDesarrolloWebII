@@ -150,18 +150,20 @@ const CouponDetailPage = ({ user }) => {
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
 
+    // Paleta de colores
     const navy = [23, 42, 58];
     const teal = [57, 169, 165];
-    const cream = [255, 250, 245];
-    const salmon = [255, 160, 145];
+    const cream = [252, 250, 242];
+    const salmon = [255, 127, 122];
+    const lightTeal = [230, 245, 245];
 
     pdf.setFillColor(cream[0], cream[1], cream[2]);
     pdf.rect(0, 0, pageWidth, pageHeight, "F");
 
     pdf.setFillColor(navy[0], navy[1], navy[2]);
-    pdf.rect(0, 0, pageWidth, 30, "F");
+    pdf.rect(0, 0, pageWidth, 45, "F");
 
-    pdf.setFontSize(30);
+    pdf.setFontSize(28);
     pdf.setFont("times", "bold");
     const firstPart = "La ";
     const secondPart = "Cuponera";
@@ -169,64 +171,112 @@ const CouponDetailPage = ({ user }) => {
     const startX = (pageWidth - totalWidth) / 2;
 
     pdf.setTextColor(salmon[0], salmon[1], salmon[2]);
-    pdf.text(firstPart, startX, 23);
-
-    const offset = pdf.getTextWidth(firstPart);
+    pdf.text(firstPart, startX, 28);
     pdf.setTextColor(teal[0], teal[1], teal[2]);
-    pdf.text(secondPart, startX + offset, 23);
+    pdf.text(secondPart, startX + pdf.getTextWidth(firstPart), 28);
 
-    let yPos = 50;
+    let yPos = 75;
 
-    pdf.setTextColor(teal[0], teal[1], teal[2]);
-    pdf.setFontSize(28);
-    pdf.text(coupon.title, 20, yPos);
+    pdf.setFillColor(255, 255, 255);
+    pdf.setDrawColor(230, 230, 230);
+    pdf.roundedRect(15, yPos - 12, pageWidth - 30, 145, 3, 3, "FD");
+
+    pdf.setTextColor(navy[0], navy[1], navy[2]);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(22);
+    const titleLines = pdf.splitTextToSize(coupon.title, pageWidth - 50);
+    pdf.text(titleLines, 25, yPos);
+    yPos += titleLines.length * 10 + 8;
+
+    pdf.setFontSize(10);
+    pdf.setTextColor(140, 140, 140);
+    pdf.setFont("helvetica", "normal");
+    pdf.text("EMPRESA OFERTANTE", 25, yPos);
+    pdf.text("TITULAR DEL CUPÓN (DUI)", pageWidth - 25, yPos, {
+      align: "right",
+    });
+
+    yPos += 7;
+    pdf.setTextColor(navy[0], navy[1], navy[2]);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+    pdf.text(coupon.companyName.toUpperCase(), 25, yPos);
+    pdf.text(coupon.duiCliente, pageWidth - 25, yPos, { align: "right" });
+
+    yPos += 18;
+
+    pdf.setLineDash([2, 2], 0);
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(25, yPos, pageWidth - 25, yPos);
+    pdf.setLineDash([], 0);
+
     yPos += 15;
 
-    pdf.setTextColor(navy[0], navy[1], navy[2]);
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(14);
-    pdf.text(`Empresa: ${coupon.companyName}`, 20, yPos);
-    yPos += 10;
-    pdf.text(`DUI del titular: ${coupon.duiCliente}`, 20, yPos);
-    yPos += 20;
-
-    pdf.setDrawColor(teal[0], teal[1], teal[2]);
-    pdf.setFillColor(255, 255, 255);
-    pdf.setLineWidth(1.5);
-    pdf.roundedRect(20, yPos, pageWidth - 40, 40, 5, 5, "FD");
+    const boxWidth = pageWidth - 80;
+    const boxX = 40;
+    pdf.setFillColor(lightTeal[0], lightTeal[1], lightTeal[2]);
+    pdf.roundedRect(boxX, yPos, boxWidth, 38, 4, 4, "F");
 
     pdf.setTextColor(teal[0], teal[1], teal[2]);
-    pdf.setFontSize(14);
+    pdf.setFontSize(9);
     pdf.setFont("helvetica", "bold");
-    pdf.text("CÓDIGO DE CANJE", pageWidth / 2, yPos + 12, { align: "center" });
-
-    pdf.setTextColor(navy[0], navy[1], navy[2]);
-    pdf.setFontSize(26);
-    pdf.setFont("courier", "bold");
-    pdf.text(coupon.code, pageWidth / 2, yPos + 30, { align: "center" });
-    yPos += 55;
-
-    pdf.setTextColor(salmon[0], salmon[1], salmon[2]);
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(14);
-    if (coupon.couponDeadline) {
-      pdf.text(`Válido hasta: ${formatDate(coupon.couponDeadline)}`, 20, yPos);
-    } else {
-      pdf.text(`Válido hasta: N/A`, 20, yPos);
-    }
-
-    pdf.setFillColor(navy[0], navy[1], navy[2]);
-    pdf.rect(0, pageHeight - 20, pageWidth, 20, "F");
-    pdf.setTextColor(cream[0], cream[1], cream[2]);
-    pdf.setFontSize(10);
     pdf.text(
-      "© 2026 La Cuponera. Todos los derechos reservados.",
+      "PRESENTA ESTE CÓDIGO EN EL ESTABLECIMIENTO",
       pageWidth / 2,
-      pageHeight - 8,
+      yPos + 10,
       { align: "center" },
     );
 
-    pdf.save(`Coupon_${coupon.id}.pdf`);
+    let fontSizeCodigo = 24;
+    const maxTextoWidth = boxWidth - 15;
+    pdf.setFont("courier", "bold");
+    pdf.setFontSize(fontSizeCodigo);
+
+    while (
+      pdf.getTextWidth(coupon.code) > maxTextoWidth &&
+      fontSizeCodigo > 7
+    ) {
+      fontSizeCodigo -= 1;
+      pdf.setFontSize(fontSizeCodigo);
+    }
+
+    pdf.setTextColor(navy[0], navy[1], navy[2]);
+
+    const yCodePos = yPos + (fontSizeCodigo > 18 ? 27 : 24);
+    pdf.text(coupon.code, pageWidth / 2, yCodePos, { align: "center" });
+
+    yPos += 58;
+
+    pdf.setDrawColor(salmon[0], salmon[1], salmon[2]);
+    pdf.setLineWidth(0.5);
+    pdf.line(pageWidth / 2 - 30, yPos - 5, pageWidth / 2 + 30, yPos - 5);
+
+    pdf.setTextColor(salmon[0], salmon[1], salmon[2]);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+    const deadlineText = coupon.couponDeadline
+      ? `VÁLIDO HASTA: ${formatDate(coupon.couponDeadline).toUpperCase()}`
+      : "SIN FECHA DE VENCIMIENTO";
+    pdf.text(deadlineText, pageWidth / 2, yPos + 5, { align: "center" });
+
+    pdf.setFillColor(navy[0], navy[1], navy[2]);
+    pdf.rect(0, pageHeight - 25, pageWidth, 25, "F");
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(9);
+    pdf.text(
+      "Este cupón es intransferible y requiere DUI original.",
+      pageWidth / 2,
+      pageHeight - 12,
+      { align: "center" },
+    );
+    pdf.text(
+      "Generado por La Cuponera App - 2026",
+      pageWidth / 2,
+      pageHeight - 7,
+      { align: "center" },
+    );
+
+    pdf.save(`Cupon_${coupon.code}.pdf`);
   };
 
   return (
