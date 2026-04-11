@@ -3,11 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { canAprobarOfertas } from "../../helpers/roleHelper";
 import { obtenerEmpresaPorId } from "../../services/empresasService";
+import { obtenerOfertasPorEmpresa } from "../../services/ofertasService";
 import {
-  obtenerOfertasPorEmpresa,
   aprobarOferta,
   rechazarOferta,
-} from "../../services/ofertasService";
+} from "../../services/estadosOfertaService";
 import Button from "../../components/ui/Button";
 
 const ESTADOS = [
@@ -41,7 +41,7 @@ const clasificarOferta = (oferta) => {
 export default function CompanyDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { role } = useAuth();
+  const { user: authUser, role } = useAuth();
 
   const [empresa, setEmpresa] = useState(null);
   const [ofertas, setOfertas] = useState([]);
@@ -95,7 +95,7 @@ export default function CompanyDetailPage() {
       setError("");
       setProcesandoId(ofertaId);
 
-      await aprobarOferta(ofertaId);
+      await aprobarOferta(ofertaId, authUser.uid);
       await recargarOfertas();
     } catch (err) {
       console.error("Error al aprobar oferta:", err);
@@ -126,7 +126,7 @@ export default function CompanyDetailPage() {
       setError("");
       setProcesandoId(ofertaRechazando);
 
-      await rechazarOferta(ofertaRechazando, motivoRechazo.trim());
+      await rechazarOferta(ofertaRechazando, authUser.uid, motivoRechazo.trim());
       cerrarRechazo();
       await recargarOfertas();
     } catch (err) {

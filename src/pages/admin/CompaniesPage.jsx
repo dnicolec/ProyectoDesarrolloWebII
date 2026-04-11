@@ -45,7 +45,7 @@ export default function CompaniesPage() {
 
   const getNombreRubro = (rubroId) => {
     const r = rubros.find((r) => r.id === rubroId);
-    return r?.nombre || rubroId || '—';
+    return r?.nombre || rubroId || '-';
   };
 
   const handleNueva = () => { setEmpresaEditar(null); setModalOpen(true); };

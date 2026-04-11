@@ -42,13 +42,13 @@ const getEstadoReal = (oferta) => {
 };
 
 const formatFecha = (f) => {
-  if (!f) return '—';
+  if (!f) return '-';
   const [year, month, day] = f.split('-');
   return new Date(year, month - 1, day).toLocaleDateString('es-SV', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
 const formatMonto = (n) =>
-  n != null ? `$${Number(n).toFixed(2)}` : '—';
+  n != null ? `$${Number(n).toFixed(2)}` : '-';
 
 export default function OffersPage({ user }) {
   const { user: authUser } = useAuth();
@@ -211,7 +211,7 @@ export default function OffersPage({ user }) {
                         </span>
                       </div>
                       <p className="text-xs text-navy/40 mb-2">
-                        {formatFecha(oferta.fecha_inicio)} → {formatFecha(oferta.fecha_fin)}
+                        {formatFecha(oferta.fecha_inicio)} - {formatFecha(oferta.fecha_fin)}
                         {' · '}Límite cupón: {formatFecha(oferta.fecha_limite_cupon)}
                       </p>
 

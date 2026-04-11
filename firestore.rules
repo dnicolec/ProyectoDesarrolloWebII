@@ -17,8 +17,13 @@ service cloud.firestore {
       return datosUsuario().role;
     }
 
+    // Super admin: verificado por email en el token, NO depende de ningún doc de Firestore
+    function esSuperAdmin() {
+      return estaAutenticado() && request.auth.token.email == 'superadmin@lacuponera.com';
+    }
+
     function esAdminCuponera() {
-      return estaAutenticado() && obtenerRol() == 'admin_cuponera';
+      return estaAutenticado() && (obtenerRol() == 'admin_cuponera' || esSuperAdmin());
     }
 
     function esAdminEmpresa() {
@@ -35,13 +40,31 @@ service cloud.firestore {
     }
 
     // --- usuarios -------------------------------------------------------------
-    // El usuario ve/edita su propio documento; admin_cuponera accede a todos
+    // Cualquier usuario autenticado puede leer; escritura acotada por rol
 
     match /usuarios/{userId} {
-      allow read:   if estaAutenticado() && (request.auth.uid == userId || esAdminCuponera());
-      allow create: if estaAutenticado() && request.auth.uid == userId;
-      allow update: if estaAutenticado() && (request.auth.uid == userId || esAdminCuponera());
-      allow delete: if esAdminCuponera();
+      allow read: if estaAutenticado();
+
+      // Creación propia (registro normal)
+      // + admin_cuponera puede crear cualquier documento de usuario (seed / gestión)
+      // + admin_empresa puede crear empleados de su propia empresa (flujo EmployeeModal)
+      allow create: if estaAutenticado() && request.auth.uid == userId
+                    || esAdminCuponera()
+                    || (esAdminEmpresa()
+                        && request.resource.data.role == 'empleado'
+                        && request.resource.data.empresaId == miEmpresaId());
+
+      allow update: if estaAutenticado() && request.auth.uid == userId
+                    || esAdminCuponera()
+                    || (esAdminEmpresa()
+                        && resource.data.role == 'empleado'
+                        && resource.data.empresaId == miEmpresaId());
+
+      // El documento del super admin nunca puede borrarse (ni por admin_cuponera)
+      allow delete: if (esAdminCuponera() && resource.data.isSuperAdmin != true)
+                    || (esAdminEmpresa()
+                        && resource.data.role == 'empleado'
+                        && resource.data.empresaId == miEmpresaId());
     }
 
     // --- clientes -------------------------------------------------------------
@@ -62,44 +85,30 @@ service cloud.firestore {
       allow create, update, delete: if esAdminCuponera();
     }
 
-    // --- empleados ------------------------------------------------------------
-    // admin_cuponera ve todos; admin_empresa solo ve/gestiona los de su empresa
-
-    match /empleados/{empleadoId} {
-      allow read: if esAdminCuponera()
-                  || (esAdminEmpresa() && miEmpresaId() == resource.data.empresaId);
-
-      // Al crear, valida que el empresaId del nuevo doc coincide con el del admin
-      allow create: if esAdminEmpresa()
-                    && miEmpresaId() == request.resource.data.empresaId;
-
-      allow update: if esAdminEmpresa()
-                    && miEmpresaId() == resource.data.empresaId;
-
-      allow delete: if esAdminEmpresa()
-                    && miEmpresaId() == resource.data.empresaId;
-    }
-
     // --- ofertas --------------------------------------------------------------
     // Lectura pública; admin_empresa gestiona las de su empresa; admin_cuponera aprueba
 
     match /ofertas/{ofertaId} {
       allow read: if true;
 
-      allow create: if esAdminEmpresa()
-                    && miEmpresaId() == request.resource.data.empresa_id;
+      // admin_cuponera puede crear ofertas (necesario para seed)
+      // admin_empresa puede crear ofertas de su propia empresa
+      allow create: if esAdminCuponera()
+                    || (esAdminEmpresa() && miEmpresaId() == request.resource.data.empresa_id);
 
-      // admin_empresa edita sus ofertas; admin_cuponera edita cualquiera (para aprobar/rechazar)
+      // admin_empresa edita sus ofertas; admin_cuponera edita cualquiera (aprobar/rechazar)
+      // cualquier usuario autenticado puede incrementar cuponesGenerados (compra de cupones)
       allow update: if esAdminCuponera()
-                    || (esAdminEmpresa() && miEmpresaId() == resource.data.empresa_id);
+                    || (esAdminEmpresa() && miEmpresaId() == resource.data.empresa_id)
+                    || (estaAutenticado()
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cuponesGenerados']));
 
-      allow delete: if esAdminEmpresa()
-                    && miEmpresaId() == resource.data.empresa_id;
+      allow delete: if esAdminCuponera()
+                    || (esAdminEmpresa() && miEmpresaId() == resource.data.empresa_id);
     }
 
     // --- cupones --------------------------------------------------------------
-    // Lectura pública: cualquiera puede ver cupones (sin sesión)
-    // Escritura restringida: solo usuarios autenticados con el rol correcto
+    // Lectura pública; escritura restringida por rol
 
     match /cupones/{cuponId} {
       allow read: if true;
@@ -120,7 +129,8 @@ service cloud.firestore {
     match /historial_estados_oferta/{historialId} {
       allow read:   if esAdminCuponera() || esAdminEmpresa();
       allow create: if esAdminCuponera() || esAdminEmpresa();
-      allow update, delete: if false;
+      allow update: if false;
+      allow delete: if esAdminCuponera();
     }
 
     // --- rubros ---------------------------------------------------------------

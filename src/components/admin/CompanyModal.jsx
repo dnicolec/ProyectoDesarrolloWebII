@@ -8,7 +8,7 @@ const CLOUDINARY_UPLOAD_PRESET = 'logos-empresas';
 
 const validarCodigo = (codigo) => /^[A-Za-z]{3}\d{3}$/.test(codigo);
 const validarEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-const validarTelefono = (tel) => /^\d{8}$/.test(tel);
+const validarTelefono = (tel) => /^\d{4}-?\d{4}$/.test(tel.trim());
 const validarComision = (val) => { const n = Number(val); return !isNaN(n) && n >= 0 && n <= 100; };
 
 export default function CompanyModal({ empresa, rubros, onClose, onGuardado }) {
@@ -76,7 +76,8 @@ export default function CompanyModal({ empresa, rubros, onClose, onGuardado }) {
       if (data.secure_url) {
         setLogoUrl(data.secure_url);
       } else {
-        throw new Error('No se obtuvo URL de Cloudinary');
+        console.error('Respuesta de Cloudinary:', data);
+        throw new Error(data.error?.message || 'No se obtuvo URL de Cloudinary');
       }
     } catch {
       setErrorGeneral('Error al subir la imagen. Intenta de nuevo.');
@@ -135,18 +136,24 @@ export default function CompanyModal({ empresa, rubros, onClose, onGuardado }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/40 backdrop-blur-sm animate-fade-in">
       <div className="bg-white rounded-2xl border border-cream w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl animate-slide-up">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-cream sticky top-0 bg-white z-10">
-          <h2 className="font-serif font-bold text-navy text-lg">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-cream sticky top-0 bg-white z-10 gap-3">
+          <h2 className="font-serif font-bold text-navy text-lg shrink-0">
             {esEdicion ? 'Editar empresa' : 'Nueva empresa'}
           </h2>
-          <button onClick={onClose} className="text-navy/40 hover:text-navy transition-colors p-1">
+          <div className="flex items-center gap-2 ml-auto">
+            <Button type="button" variant="ghost" size="sm" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" form="company-form" size="sm" loading={loading} disabled={uploadingLogo}>
+              {esEdicion ? 'Guardar' : 'Crear empresa'}
+            </Button>
+          </div>
+          <button onClick={onClose} className="text-navy/40 hover:text-navy transition-colors p-1 shrink-0">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+        <form id="company-form" onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
           {errorGeneral && (
             <div className="bg-coral/10 border border-coral/30 text-coral text-sm rounded-xl px-4 py-3">{errorGeneral}</div>
           )}
@@ -230,12 +237,6 @@ export default function CompanyModal({ empresa, rubros, onClose, onGuardado }) {
           <Input label="Dirección" required value={form.direccion} onChange={handleChange('direccion')} error={errores.direccion} placeholder="Ej: Col. Escalón, San Salvador" />
           <Input label="Sitio web" value={form.sitio_web} onChange={handleChange('sitio_web')} placeholder="https://empresa.com" />
 
-          <div className="flex gap-3 pt-2">
-            <Button type="button" variant="ghost" fullWidth onClick={onClose}>Cancelar</Button>
-            <Button type="submit" fullWidth loading={loading} disabled={uploadingLogo}>
-              {esEdicion ? 'Guardar cambios' : 'Crear empresa'}
-            </Button>
-          </div>
         </form>
       </div>
     </div>

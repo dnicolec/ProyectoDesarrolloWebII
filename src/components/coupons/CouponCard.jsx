@@ -45,23 +45,21 @@ const CouponCard = ({ coupon }) => {
   return (
     <div
       onClick={() => navigate(`/my-coupons/${coupon.id}`)}
-      className="bg-white rounded-2xl border border-cream overflow-hidden cursor-pointer
+      className="h-full flex flex-col bg-white rounded-2xl border border-cream overflow-hidden cursor-pointer
                  hover:shadow-lg hover:shadow-navy/[0.06] hover:-translate-y-1.5
                  transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]
                  hover:border-transparent group"
     >
       {/* Image */}
-      <div className="relative h-36 sm:h-44 overflow-hidden">
+      <div className={`relative h-28 sm:h-32 overflow-hidden ${coupon.imageUrl ? 'bg-white p-3 sm:p-4' : `bg-gradient-to-br ${gradient}`}`}>
         {coupon.imageUrl ? (
           <img
             src={coupon.imageUrl}
             alt={coupon.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div
-            className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}
-          >
+          <div className="w-full h-full flex items-center justify-center">
             <Icon className="text-white/90" />
           </div>
         )}
@@ -92,8 +90,8 @@ const CouponCard = ({ coupon }) => {
       </div>
 
       {/* Body */}
-      <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-1">
-        <Badge variant="cream">{coupon.companyName || coupon.category}</Badge>
+      <div className="flex-1 flex flex-col px-3 sm:px-4 pb-3 sm:pb-4 pt-1">
+        <Badge variant="cream" className="self-start">{coupon.companyName || coupon.category}</Badge>
 
         <h3 className="font-serif font-bold text-base sm:text-[1.1rem] text-navy mt-1.5 leading-snug line-clamp-2">
           {coupon.title}
@@ -104,7 +102,7 @@ const CouponCard = ({ coupon }) => {
         </p>
 
         {/* Footer */}
-        <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-cream space-y-1.5">
+        <div className="mt-auto pt-2 sm:pt-3 border-t border-cream space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="text-[0.7rem] sm:text-xs text-navy/40">
               {coupon.companyName}

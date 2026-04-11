@@ -88,7 +88,7 @@ const OfferDetailPage = ({ user }) => {
       setError("");
       // Agregar al carrito
       addToCart(offer, cantidad);
-      setSuccess(`✓ Se agregó ${cantidad} cupón(es) al carrito`);
+      setSuccess(`Se agregó ${cantidad} cupón(es) al carrito`);
       setMostrarConfirmacion(true);
       // Limpiar cantidad después de agregar
       setCantidad(1);
@@ -163,13 +163,13 @@ const OfferDetailPage = ({ user }) => {
         {/* Left column */}
         <div className="md:col-span-3 space-y-6">
           <div
-            className={`relative rounded-2xl overflow-hidden h-72 bg-gradient-to-br ${gradient}`}
+            className={`relative rounded-2xl overflow-hidden h-72 ${offer.empresa?.logo && !imgError ? 'bg-white' : `bg-gradient-to-br ${gradient}`}`}
           >
             {offer.empresa?.logo && !imgError ? (
               <img
                 src={offer.empresa.logo}
                 alt={offer.empresa?.nombre || 'Empresa'}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
                 onError={() => setImgError(true)}
               />
             ) : (
@@ -197,7 +197,16 @@ const OfferDetailPage = ({ user }) => {
               </p>
               <p>{offer.empresa?.email}</p>
               <p>{offer.empresa?.telefono}</p>
-              <p>{offer.empresa?.sitio_web}</p>
+              {offer.empresa?.sitio_web && (
+                <a
+                  href={offer.empresa.sitio_web.startsWith('http') ? offer.empresa.sitio_web : `https://${offer.empresa.sitio_web}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-teal hover:underline break-all"
+                >
+                  {offer.empresa.sitio_web}
+                </a>
+              )}
             </div>
           </div>
         </div>

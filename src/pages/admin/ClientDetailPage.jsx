@@ -9,7 +9,7 @@ const TABS = [
 ];
 
 function formatFecha(ts) {
-  if (!ts) return "—";
+  if (!ts) return "-";
   const d = ts?.toDate ? ts.toDate() : new Date(ts);
   return d.toLocaleDateString("es-SV", { day: "2-digit", month: "short", year: "numeric" });
 }
@@ -52,7 +52,7 @@ export default function ClientDetailPage() {
         onClick={() => navigate("/admin/clientes")}
         className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-4"
       >
-        ← Volver a clientes
+        Volver a clientes
       </button>
 
       {/* Datos personales */}
@@ -67,15 +67,15 @@ export default function ClientDetailPage() {
           </div>
           <div>
             <span className="text-gray-500 font-medium">Teléfono:</span>{" "}
-            {cliente.telefono || "—"}
+            {cliente.telefono || "-"}
           </div>
           <div>
             <span className="text-gray-500 font-medium">DUI:</span>{" "}
-            {cliente.dui || "—"}
+            {cliente.dui || "-"}
           </div>
           <div>
             <span className="text-gray-500 font-medium">Dirección:</span>{" "}
-            {cliente.direccion || "—"}
+            {cliente.direccion || "-"}
           </div>
         </div>
       </div>

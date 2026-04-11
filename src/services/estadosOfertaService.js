@@ -36,7 +36,7 @@ export const registrarCambioEstado = async (ofertaId, estadoAnterior, estadoNuev
             timestamp: serverTimestamp()
         });
 
-        console.log(`Cambio de estado registrado: ${estadoAnterior} → ${estadoNuevo} (oferta: ${ofertaId})`);
+        console.log(`Cambio de estado registrado: ${estadoAnterior} -> ${estadoNuevo} (oferta: ${ofertaId})`);
         return { success: true, transicionId: transicion.id };
     } catch (error) {
         console.error('Error registrando cambio de estado:', error);
@@ -103,7 +103,7 @@ export const rechazarOferta = async (ofertaId, userId, razonRechazo) => {
             // Actualizar estado de la oferta a 'rechazada' e incluir la razón
             transaccion.update(ofertaRef, {
                 estado: ESTADOS_OFERTA.RECHAZADA,
-                razonRechazo,
+                motivo_rechazo: razonRechazo,
                 updatedAt: serverTimestamp()
             });
 

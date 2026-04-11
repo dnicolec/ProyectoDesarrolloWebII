@@ -56,13 +56,13 @@ const OfferCard = ({ offer }) => {
   return (
     <div
       onClick={() => navigate(`/offer/${offer.id}`)}
-      className="relative bg-white rounded-2xl border border-cream overflow-hidden cursor-pointer
+      className="relative h-full flex flex-col bg-white rounded-2xl border border-cream overflow-hidden cursor-pointer
                  hover:shadow-xl hover:shadow-navy/[0.08] hover:-translate-y-2
                  transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]
                  hover:border-sage/20 group"
     >
       {/* Imagen o ícono */}
-      <div className="relative h-36 sm:h-44 overflow-hidden">
+      <div className={`relative h-28 sm:h-32 overflow-hidden ${logoUrl && !imgError ? 'bg-white' : fallbackBg}`}>
         {logoUrl && !imgError ? (
           <img
             src={logoUrl}
@@ -71,9 +71,8 @@ const OfferCard = ({ offer }) => {
             onError={() => setImgError(true)}
           />
         ) : (
-          /* Fallback con ícono del rubro */
-          <div className={`w-full h-full ${fallbackBg} flex items-center justify-center`}>
-            <Icon className="text-white/80" size={48} />
+          <div className="w-full h-full flex items-center justify-center">
+            <Icon className="text-white/80" size={40} />
           </div>
         )}
         {/* Badge descuento */}
@@ -98,8 +97,8 @@ const OfferCard = ({ offer }) => {
       </div>
 
       {/* Body */}
-      <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-1">
-        <Badge variant="cream">{offer.empresa?.nombre || 'Empresa'}</Badge>
+      <div className="flex-1 flex flex-col px-3 sm:px-4 pb-3 sm:pb-4 pt-1">
+        <Badge variant="cream" className="self-start">{offer.empresa?.nombre || 'Empresa'}</Badge>
 
         <h3 className="font-serif font-bold text-base sm:text-[1.1rem] text-navy mt-1.5 leading-snug line-clamp-2">
           {offer.titulo}
@@ -120,7 +119,7 @@ const OfferCard = ({ offer }) => {
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-cream relative">
+        <div className="flex items-center justify-between mt-auto pt-2 sm:pt-3 border-t border-cream relative">
           <div className="flex items-center gap-2">
             <span className="text-[0.7rem] sm:text-xs text-navy/40 truncate">
               {offer.empresa?.nombre || 'Empresa'}

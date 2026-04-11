@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { auth } from '../lib/firebase';
 
+const isDev = import.meta.env.DEV;
+
 const navItems = [
   {
     section: 'General',
@@ -17,11 +19,10 @@ const navItems = [
       { label: 'Por aprobar', path: '/admin/ofertas/pendientes', dot: 'cream' },
     ],
   },
-
   {
     section: 'Cuenta',
     items: [
-      { label: 'Cambiar contraseña', path: '/password', dot: 'sage' },
+      { label: 'Cambiar contraseña', path: '/admin/password', dot: 'sage' },
     ],
   }
 ];
@@ -47,7 +48,7 @@ export default function AdminLayout({ user }) {
   const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
-    <div className="min-h-screen flex flex-col bg-cream-bg font-sans">
+    <div className="h-screen flex flex-col bg-cream-bg font-sans overflow-hidden">
       {/* Topbar */}
       <header className="sticky top-0 z-40 bg-white border-b border-cream h-14 flex items-center px-4 sm:px-6 justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
@@ -89,13 +90,26 @@ export default function AdminLayout({ user }) {
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar — desktop */}
-        <aside className="hidden sm:flex w-52 bg-navy flex-col flex-shrink-0">
+      {/* Dev mode banner */}
+      {isDev && (
+        <div className="bg-yellow-400 text-yellow-900 text-[11px] font-semibold text-center py-1 px-4 flex items-center justify-center gap-2 flex-shrink-0">
+          <span>ENTORNO DE SUPER DUPER DESARROLLO - los datos son de prueba</span>
+          <Link
+            to="/admin/seed"
+            className="underline font-bold hover:text-yellow-950 transition-colors"
+          >
+            Seedear datos
+          </Link>
+        </div>
+      )}
+
+      <div className="flex flex-1 min-h-0">
+        {/* Sidebar - desktop */}
+        <aside className="hidden sm:flex w-52 bg-navy flex-col flex-shrink-0 overflow-y-auto">
           <nav className="flex-1 py-4">
             {navItems.map((group) => (
               <div key={group.section} className="mb-2">
-                <p className="text-[9px] font-semibold uppercase tracking-widest text-white/30 px-4 mb-1.5 mt-3">
+                <p className="text-[9px] font-semibold uppercase tracking-widest text-white/40 px-4 mb-1 mt-4">
                   {group.section}
                 </p>
                 {group.items.map((item) => {
@@ -104,10 +118,10 @@ export default function AdminLayout({ user }) {
                     <Link
                       key={item.path}
                       to={item.path}
-                      className={`flex items-center gap-2.5 px-4 py-2 text-[13px] font-medium transition-all border-l-2
+                      className={`flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium transition-all border-l-2
                         ${isActive
-                          ? 'text-white bg-white/8 border-coral opacity-100'
-                          : 'text-white/55 border-transparent hover:text-white/85 hover:bg-white/5'
+                          ? 'text-white bg-white/10 border-coral'
+                          : 'text-white/65 border-transparent hover:text-white hover:bg-white/6'
                         }`}
                     >
                       <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColors[item.dot]}`} />
@@ -117,13 +131,41 @@ export default function AdminLayout({ user }) {
                 })}
               </div>
             ))}
+
+            {/* Dev-only section */}
+            {isDev && (
+              <div className="mb-2">
+                <p className="text-[9px] font-semibold uppercase tracking-widest text-yellow-400/60 px-4 mb-1.5 mt-3">
+                  Desarrollo
+                </p>
+                <Link
+                  to="/admin/seed"
+                  className={`flex items-center gap-2.5 px-4 py-2 text-[13px] font-medium transition-all border-l-2
+                    ${location.pathname === '/admin/seed'
+                      ? 'text-yellow-300 bg-yellow-400/10 border-yellow-400'
+                      : 'text-yellow-400/60 border-transparent hover:text-yellow-300 hover:bg-yellow-400/5'
+                    }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-yellow-400" />
+                  Seed datos
+                </Link>
+              </div>
+            )}
           </nav>
-          <div className="px-4 py-3 border-t border-white/10">
-            <p className="text-[10px] text-white/30">Admin La Cuponera</p>
+          <div className="px-3 py-3 border-t border-white/10">
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-medium text-white/60 hover:text-white hover:bg-white/8 transition-all"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              Ver sitio público
+            </Link>
           </div>
         </aside>
 
-        {/* Sidebar — mobile overlay */}
+        {/* Sidebar - mobile overlay */}
         {menuOpen && (
           <div className="sm:hidden fixed inset-0 z-50 flex">
             <div className="w-52 bg-navy flex flex-col">
@@ -133,7 +175,7 @@ export default function AdminLayout({ user }) {
                   <span className="text-teal">Cuponera</span>
                 </span>
               </div>
-              <nav className="flex-1 py-4">
+              <nav className="py-4">
                 {navItems.map((group) => (
                   <div key={group.section} className="mb-2">
                     <p className="text-[9px] font-semibold uppercase tracking-widest text-white/30 px-4 mb-1.5 mt-3">
@@ -159,6 +201,27 @@ export default function AdminLayout({ user }) {
                     })}
                   </div>
                 ))}
+
+                {/* Dev-only section */}
+                {isDev && (
+                  <div className="mb-2">
+                    <p className="text-[9px] font-semibold uppercase tracking-widest text-yellow-400/60 px-4 mb-1.5 mt-3">
+                      Desarrollo
+                    </p>
+                    <Link
+                      to="/admin/seed"
+                      onClick={() => setMenuOpen(false)}
+                      className={`flex items-center gap-2.5 px-4 py-2 text-[13px] font-medium transition-all border-l-2
+                        ${location.pathname === '/admin/seed'
+                          ? 'text-yellow-300 bg-yellow-400/10 border-yellow-400'
+                          : 'text-yellow-400/60 border-transparent hover:text-yellow-300 hover:bg-yellow-400/5'
+                        }`}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-yellow-400" />
+                      Seed datos
+                    </Link>
+                  </div>
+                )}
               </nav>
             </div>
             <div className="flex-1 bg-black/40" onClick={() => setMenuOpen(false)} />

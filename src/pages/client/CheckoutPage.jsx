@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 import { Button, Badge, Alert } from "../../components/ui";
 import { solicitarCupon } from "../../services/cuponesService";
@@ -14,16 +14,8 @@ const CheckoutPage = ({ user }) => {
   const [cvv, setCvv] = useState("");
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  if (cart.length === 0) {
-    return (
-      <div className="container-app py-20 text-center">
-        <p className="text-navy/50 mb-4">Tu carrito está vacío.</p>
-        <Button onClick={() => navigate("/")}>Ver ofertas</Button>
-      </div>
-    );
-  }
+  const [purchased, setPurchased] = useState(false);
+  const [purchasedItems, setPurchasedItems] = useState([]);
 
   const total = getTotalPrice();
 
@@ -85,21 +77,89 @@ const CheckoutPage = ({ user }) => {
         "bRucC3jMVo9zYDT5b",
       );
 
-      setSuccess("✓ Compra realizada exitosamente");
-
-      // Limpiar carrito
+      // Guardar items antes de limpiar el carrito
+      setPurchasedItems([...cart]);
       clearCart();
-
-      // Redirigir a mis cupones después de 2 segundos
-      setTimeout(() => {
-        navigate("/my-coupons", { state: { success: true } });
-      }, 2000);
+      setPurchased(true);
     } catch (err) {
       console.error("Error:", err);
       setError(err.message || "Error al procesar la compra");
       setProcessing(false);
     }
   };
+
+  if (cart.length === 0 && !purchased) {
+    return (
+      <div className="container-app py-20 text-center">
+        <p className="text-navy/50 mb-4">Tu carrito está vacío.</p>
+        <Button onClick={() => navigate("/")}>Ver ofertas</Button>
+      </div>
+    );
+  }
+
+  if (purchased) {
+    const totalPagado = purchasedItems.reduce(
+      (acc, item) => acc + item.costo_cupon * item.quantity, 0
+    );
+
+    return (
+      <div className="container-app py-16 max-w-lg mx-auto text-center space-y-6">
+        {/* Icono de éxito */}
+        <div className="w-16 h-16 rounded-full bg-teal/10 flex items-center justify-center mx-auto">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-teal">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+
+        <div>
+          <h1 className="font-serif text-3xl font-extrabold text-navy">
+            ¡Compra realizada!
+          </h1>
+          <p className="text-navy/55 mt-2 text-sm">
+            Tu pago fue procesado exitosamente. Ya puedes usar tus cupones.
+          </p>
+        </div>
+
+        {/* Resumen de lo comprado */}
+        <div className="bg-white border border-cream rounded-2xl p-5 text-left space-y-3">
+          {purchasedItems.map((item) => (
+            <div key={item.id} className="flex justify-between items-center text-sm">
+              <div>
+                <p className="font-semibold text-navy">{item.titulo}</p>
+                <p className="text-navy/45 text-xs">
+                  {item.empresa?.nombre || item.rubro} · {item.quantity} cupón{item.quantity > 1 ? 'es' : ''}
+                </p>
+              </div>
+              <span className="font-bold text-teal">
+                ${(item.costo_cupon * item.quantity).toFixed(2)}
+              </span>
+            </div>
+          ))}
+          <div className="border-t border-cream pt-3 flex justify-between text-sm font-semibold text-navy">
+            <span>Total pagado</span>
+            <span className="text-teal text-base">${totalPagado.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <p className="text-xs text-navy/40">
+          Recibirás un correo de confirmación en <strong>{user?.email}</strong>
+        </p>
+
+        {/* Acciones */}
+        <div className="flex flex-col gap-3">
+          <Link to="/my-coupons">
+            <Button fullWidth size="lg">
+              Ver mis cupones
+            </Button>
+          </Link>
+          <Button fullWidth size="lg" variant="ghost" onClick={() => navigate("/")}>
+            Seguir comprando
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container-app py-8">
@@ -184,9 +244,6 @@ const CheckoutPage = ({ user }) => {
             <form onSubmit={handlePayment} className="space-y-4">
               {error && (
                 <Alert type="error" title="Error" description={error} />
-              )}
-              {success && (
-                <Alert type="success" title="Éxito" description={success} />
               )}
 
               <div>
