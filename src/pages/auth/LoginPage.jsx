@@ -59,12 +59,20 @@ const LoginPage = () => {
       }
 
       const profile = userSnap.data();
-      const ruta = getRutaPorRol(profile.role);
 
+      // si está inactivo
+      if (profile.role === "empleado_inactivo" || profile.activo === false) {
+        await signOut(auth);
+        setError("Tu cuenta ha sido desactivada. Contacta a tu adminstrador");
+        return;
+      }
+
+      const ruta = getRutaPorRol(profile.role);
       //Redireccionar según rol
       navigate(location.state?.from || ruta, { replace: true });
     } catch (err) {
-      let mensaje = "Error al ingresar";
+      console.error(err);
+      let mensaje = err.message;
 
       if (err.code === "auth/invalid-credential") {
         mensaje = "Email o contraseña incorrectos";

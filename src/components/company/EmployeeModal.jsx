@@ -1,7 +1,17 @@
 import { doc, setDoc, updateDoc, collection } from "firebase/firestore";
-import { db } from "../../lib/firebase";
+import { db, firebaseConfig } from "../../lib/firebase";
 import { useState } from "react";
-import { Modal, Input, Button } from "../../components/ui";
+import { Modal, Input, Button, Alert } from "../../components/ui";
+import { initializeApp } from "firebase/app";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  signOut,
+} from "firebase/auth";
+
+// creamos conexión fantasma para poder crear los empleados y que se puedan registrar
+const appFantasma = initializeApp(firebaseConfig, "AppFantasma");
+const authFantasma = getAuth(appFantasma);
 
 export default function EmployeeModal({
   empleado,
@@ -18,27 +28,33 @@ export default function EmployeeModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // contraseña default
-  const password = import.meta.env.VITE_DEFAULT_PASSWORD;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      if (empleado?.id) {
-        const userRef = doc(db, "usuarios", empleado.id);
-        const { password, ...datosEditar } = formData;
-
-        await updateDoc(userRef, datosEditar);
-
-        onGuardado({ id: empleado.id, ...datosEditar });
+      if (empleado) {
+        const empleadoRef = doc(db, "usuarios", empleado.id);
+        await updateDoc(empleadoRef, {
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+        });
+        Alert("Datos del empleado actualizados");
       } else {
-        const nuevoId = doc(collection(db, "usuarios")).id;
-        const nuevoDoc = {
-          ...formData,
-          password: password,
+        // contraseña default
+        const passwordTemporal = import.meta.env.VITE_DEFAULT_PASSWORD;
+        const userCredential = await createUserWithEmailAndPassword(
+          authFantasma,
+          formData.correo,
+          passwordTemporal,
+        );
+        const nuevoUid = userCredential.user.uid;
+
+        await setDoc(doc(db, "usuarios", nuevoUid), {
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+          correo: formData.correo,
           role: "empleado",
           empresaId: empresaId,
           mustChangePass: true,
@@ -46,15 +62,20 @@ export default function EmployeeModal({
           dui: "",
           telefono: "",
           direccion: "",
-        };
-        await setDoc(doc(db, "usuarios", nuevoId), nuevoDoc);
+        });
 
-        onGuardado({ id: nuevoId, ...nuevoDoc });
+        await signOut(authFantasma);
+        Alert("Empleado creado con éxito");
       }
+
+      if (onGuardado) onGuardado();
       onClose();
     } catch (error) {
-      console.error(error);
-      setError("Error al guardar los datos");
+      if (error.code === "auth/email-already-in-use") {
+        setError("Este correo ya está registrado en el sistema.");
+      } else {
+        setError(error.message || "Error al guardar los datos");
+      }
     } finally {
       setLoading(false);
     }

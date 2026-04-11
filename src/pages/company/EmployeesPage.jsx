@@ -7,11 +7,13 @@ import {
   where,
   getDocs,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import EmployeeModal from "../../components/company/EmployeeModal";
+import { Alert } from "../../components/ui";
 
 export default function EmployeesPage({ user }) {
   const { user: authUser } = useAuth();
@@ -63,8 +65,15 @@ export default function EmployeesPage({ user }) {
   }, [currentUser?.email]);
 
   const handleEliminar = async () => {
+    if (!empleadoEliminar) return;
+    setLoading(false);
     try {
-      await deleteDoc(doc(db, "usuarios", empleadoEliminar.id));
+      const empleadoRef = doc(db, "usuarios", empleadoEliminar.id);
+      await updateDoc(empleadoRef, {
+        activo: false,
+        role: "empleado_inactivo",
+      });
+      Alert("Empleado desactivado");
       setEmpleadoEliminar(null);
       cargarDatos();
     } catch {
