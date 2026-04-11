@@ -35,6 +35,7 @@ import CompanyDetailPage from "./pages/admin/CompanyDetailPage";
 import RubrosPage from "./pages/admin/RubrosPage";
 import ClientsPage from "./pages/admin/ClientsPage";
 import ClientDetailPage from "./pages/admin/ClientDetailPage";
+import OfertasPendientesPage from "./pages/admin/OfertasPendientesPage";
 
 // Company pages
 import OffersPage from "./pages/company/OffersPage";
@@ -108,6 +109,7 @@ function App() {
             <Route path="empresas" element={<CompaniesPage />} />
             <Route path="empresas/:id" element={<CompanyDetailPage />} />
             <Route path="rubros" element={<RubrosPage />} />
+            <Route path="ofertas/pendientes" element={<OfertasPendientesPage />} />
             <Route path="clientes" element={<ClientsPage />} />
             <Route path="clientes/:id" element={<ClientDetailPage />} />
             <Route path="password" element={<PasswordPage />} />

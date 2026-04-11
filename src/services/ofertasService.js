@@ -34,6 +34,33 @@ export async function rechazarOferta(ofertaId, motivo) {
   });
 }
 
+// Obtener ofertas pendientes de aprobación (en_espera)
+export const obtenerOfertasPendientes = async () => {
+    try {
+        const ofertasRef = collection(db, 'ofertas');
+        const q = query(ofertasRef, where('estado', '==', 'en_espera'));
+        const querySnapshot = await getDocs(q);
+
+        const ofertas = await Promise.all(
+            querySnapshot.docs.map(async (ofertaDoc) => {
+                const ofertaData = ofertaDoc.data();
+                const empresaRef = doc(db, 'empresas', ofertaData.empresa_id);
+                const empresaSnap = await getDoc(empresaRef);
+                return {
+                    id: ofertaDoc.id,
+                    ...ofertaData,
+                    empresa: empresaSnap.exists() ? empresaSnap.data() : null
+                };
+            })
+        );
+
+        return ofertas;
+    } catch (error) {
+        console.error('Error obteniendo ofertas pendientes:', error);
+        throw error;
+    }
+};
+
 // Obtener todas las ofertas aprobadas
 export const obtenerOfertasAprobadas = async () => {
     try {

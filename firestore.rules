@@ -17,8 +17,13 @@ service cloud.firestore {
       return datosUsuario().role;
     }
 
+    // Super admin: verificado por email en el token, NO depende de ningún doc de Firestore
+    function esSuperAdmin() {
+      return estaAutenticado() && request.auth.token.email == 'superadmin@lacuponera.com';
+    }
+
     function esAdminCuponera() {
-      return estaAutenticado() && obtenerRol() == 'admin_cuponera';
+      return estaAutenticado() && (obtenerRol() == 'admin_cuponera' || esSuperAdmin());
     }
 
     function esAdminEmpresa() {
@@ -50,11 +55,13 @@ service cloud.firestore {
                         && request.resource.data.empresaId == miEmpresaId());
 
       allow update: if estaAutenticado() && request.auth.uid == userId
+                    || esAdminCuponera()
                     || (esAdminEmpresa()
                         && resource.data.role == 'empleado'
                         && resource.data.empresaId == miEmpresaId());
 
-      allow delete: if esAdminCuponera()
+      // El documento del super admin nunca puede borrarse (ni por admin_cuponera)
+      allow delete: if (esAdminCuponera() && resource.data.isSuperAdmin != true)
                     || (esAdminEmpresa()
                         && resource.data.role == 'empleado'
                         && resource.data.empresaId == miEmpresaId());
