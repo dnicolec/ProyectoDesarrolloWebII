@@ -70,6 +70,7 @@ export default function SeedPage() {
 
     const [confirmandoLimpieza, setConfirmandoLimpieza] = useState(false);
     const [cargandoLimpieza, setCargandoLimpieza]       = useState(false);
+    const [progreso, setProgreso] = useState(null); // { paso, total, etiqueta }
 
     // Solo el super admin puede usar esta página
     if (user?.email !== SUPER_ADMIN_EMAIL) {
@@ -135,14 +136,18 @@ export default function SeedPage() {
     const handleLimpiar = async () => {
         setCargandoLimpieza(true);
         setConfirmandoLimpieza(false);
+        setProgreso({ paso: 0, total: 5, etiqueta: 'Iniciando...' });
         try {
-            const res = await limpiarSeed();
+            const res = await limpiarSeed((paso, total, etiqueta) => {
+                setProgreso({ paso, total, etiqueta });
+            });
             setResultados(prev => ({ ...prev, limpieza: res }));
             setOfertaId('');
         } catch (err) {
             setResultados(prev => ({ ...prev, limpieza: [{ estado: 'error', detalle: err.message }] }));
         } finally {
             setCargandoLimpieza(false);
+            setProgreso(null);
         }
     };
 
@@ -168,6 +173,21 @@ export default function SeedPage() {
                         manualmente en desde Firebase.
                     </p>
                 </div>
+
+                {cargandoLimpieza && progreso && (
+                    <div className="space-y-1">
+                        <div className="flex justify-between text-xs text-red-700 font-mono">
+                            <span>Borrando: {progreso.etiqueta}</span>
+                            <span>{progreso.paso}/{progreso.total}</span>
+                        </div>
+                        <div className="w-full bg-red-100 rounded-full h-2">
+                            <div
+                                className="bg-red-500 h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${(progreso.paso / progreso.total) * 100}%` }}
+                            />
+                        </div>
+                    </div>
+                )}
 
                 {!confirmandoLimpieza ? (
                     <button

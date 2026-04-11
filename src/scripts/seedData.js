@@ -18,7 +18,7 @@
 
 import {
     collection, doc, setDoc, addDoc, getDocs, deleteDoc,
-    serverTimestamp, Timestamp, runTransaction, increment,
+    serverTimestamp, Timestamp, runTransaction, increment, query, where,
 } from 'firebase/firestore';
 import {
     createUserWithEmailAndPassword, signInWithEmailAndPassword,
@@ -370,6 +370,18 @@ export const seedCupones = async () => {
             const ofertaId   = ofertaDoc.id;
             const esCanjeado = i === ofertasParaCupones.length - 1;
 
+            // Verificar si ya existe un cupón para esta oferta y usuario
+            const existingSnap = await getDocs(
+                query(collection(auxDb, 'cupones'),
+                    where('oferta_id', '==', ofertaId),
+                    where('usuario_id', '==', clienteUid),
+                )
+            );
+            if (!existingSnap.empty) {
+                resultados.push({ oferta: ofertaData.titulo, resultado: 'omitido', nota: 'Cupón ya existe' });
+                continue;
+            }
+
             try {
                 await runTransaction(auxDb, async (tx) => {
                     const usuarioSnap = await tx.get(usuarioRef);
@@ -490,8 +502,10 @@ export const seedHistorial = async (ofertaAprobadaId, adminId = 'seed-admin') =>
 // (hacerlo requiere Admin SDK; borrarlas manualmente en la consola de Firebase).
 // =============================================================================
 
-export const limpiarSeed = async () => {
+export const limpiarSeed = async (onProgress = null) => {
     const resultados = [];
+    const PASOS_TOTAL = 5; // 4 colecciones + 1 usuarios
+    let pasoActual = 0;
 
     // El llamador debe ser el super admin -su UID se usa para preservar su doc
     const superAdminUid = auth.currentUser?.uid;
@@ -499,9 +513,10 @@ export const limpiarSeed = async () => {
         return [{ paso: 'error', estado: 'Sin sesión activa. Inicia sesión como super admin antes de limpiar.' }];
     }
 
-    // 1. Borrar todas las colecciones completamente
+    // 1. Borrar todas las colecciones completamente (en paralelo por colección)
     const colecciones = ['cupones', 'historial_estados_oferta', 'ofertas', 'empresas'];
     for (const coleccion of colecciones) {
+        onProgress?.(pasoActual, PASOS_TOTAL, coleccion);
         try {
             const snap = await getDocs(collection(db, coleccion));
             await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
@@ -509,28 +524,26 @@ export const limpiarSeed = async () => {
         } catch (error) {
             resultados.push({ coleccion, estado: 'error', detalle: error.message });
         }
+        pasoActual++;
+        onProgress?.(pasoActual, PASOS_TOTAL, coleccion);
     }
 
     // 2. Borrar todos los usuarios excepto el super admin.
     // Se identifica el super admin por UID Y por isSuperAdmin:true para mayor seguridad,
     // por si el UID del documento difiere del auth.currentUser.uid por alguna razón.
+    onProgress?.(pasoActual, PASOS_TOTAL, 'usuarios');
     try {
         const snap     = await getDocs(collection(db, 'usuarios'));
         const toDelete = snap.docs.filter(
             d => d.id !== superAdminUid && d.data().isSuperAdmin !== true,
         );
 
-        let eliminados = 0;
-        const errores  = [];
+        const resultadosBorrado = await Promise.allSettled(toDelete.map(d => deleteDoc(d.ref)));
 
-        for (const d of toDelete) {
-            try {
-                await deleteDoc(d.ref);
-                eliminados++;
-            } catch (e) {
-                errores.push({ id: d.id, role: d.data().role, detalle: e.message });
-            }
-        }
+        const eliminados = resultadosBorrado.filter(r => r.status === 'fulfilled').length;
+        const errores    = resultadosBorrado
+            .map((r, i) => r.status === 'rejected' ? { id: toDelete[i].id, detalle: r.reason?.message } : null)
+            .filter(Boolean);
 
         resultados.push({
             coleccion:   'usuarios',
