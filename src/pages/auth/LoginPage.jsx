@@ -166,18 +166,17 @@ const LoginPage = () => {
       {/* Divider */}
       <div className="flex items-center gap-3 my-6">
         <div className="h-px bg-navy/20 flex-1" />
-        <span className="text-sm text-navy/50">O continúa con</span>
+        <span className="text-sm text-navy/50">¿Olvidaste tu contraseña?</span>
         <div className="h-px bg-navy/20 flex-1" />
       </div>
 
-      {/* Google Login */}
-      <button
-        onClick={handleGoogleLogin}
-        disabled={loading}
-        className="w-full border-2 border-navy/20 rounded-lg py-2 px-4 font-semibold text-navy hover:bg-navy/5 transition disabled:opacity-50"
+      {/* Change Password Link */}
+      <Link
+        to="/password"
+        className="block text-center text-sm text-teal font-semibold hover:underline"
       >
-        Google
-      </button>
+        Cambiar contraseña
+      </Link>
 
       {/* Register Link */}
       <p className="text-center text-sm text-navy/60 mt-6">

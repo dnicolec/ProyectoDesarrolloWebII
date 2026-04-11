@@ -33,6 +33,9 @@ const Footer = () => {
               <Link to="/login" className="block text-sm text-white/65 hover:text-teal-hover transition-colors">
                 Iniciar sesión
               </Link>
+              <Link to="/password" className="block text-sm text-white/65 hover:text-teal-hover transition-colors">
+                Cambiar mi contraseña
+              </Link>
             </div>
           </div>
 
