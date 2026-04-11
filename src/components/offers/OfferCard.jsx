@@ -62,18 +62,17 @@ const OfferCard = ({ offer }) => {
                  hover:border-sage/20 group"
     >
       {/* Imagen o ícono */}
-      <div className="relative h-36 sm:h-44 overflow-hidden">
+      <div className={`relative h-28 sm:h-32 overflow-hidden ${logoUrl && !imgError ? 'bg-white' : fallbackBg}`}>
         {logoUrl && !imgError ? (
           <img
             src={logoUrl}
             alt={offer.empresa?.nombre || 'Empresa'}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain p-3"
             onError={() => setImgError(true)}
           />
         ) : (
-          /* Fallback con ícono del rubro */
-          <div className={`w-full h-full ${fallbackBg} flex items-center justify-center`}>
-            <Icon className="text-white/80" size={48} />
+          <div className="w-full h-full flex items-center justify-center">
+            <Icon className="text-white/80" size={40} />
           </div>
         )}
         {/* Badge descuento */}

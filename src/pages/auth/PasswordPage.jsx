@@ -181,16 +181,6 @@ export default function PasswordPage() {
             >
               {loading ? "Actualizando..." : "Actualizar contraseña"}
             </Button>
-
-            <p className="text-center text-sm text-navy/60 mt-4">
-              <button
-                type="button"
-                onClick={() => navigate(getRutaPorRol(role))}
-                className="text-teal font-semibold hover:underline"
-              >
-                Volver al inicio
-              </button>
-            </p>
           </form>
         </>
       ) : (

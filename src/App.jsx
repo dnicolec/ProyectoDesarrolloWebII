@@ -44,6 +44,9 @@ import EmployeesPage from "./pages/company/EmployeesPage";
 import RedeemCouponsPage from "./pages/employee/RedeemCouponsPage";
 import ChangePassPage from "./pages/employee/ChangePassPage";
 
+// Dev pages (remove before production)
+import SeedPage from "./pages/dev/SeedPage";
+
 function App() {
   const { user, loading } = useAuth();
 
@@ -105,9 +108,11 @@ function App() {
             <Route path="empresas" element={<CompaniesPage />} />
             <Route path="empresas/:id" element={<CompanyDetailPage />} />
             <Route path="rubros" element={<RubrosPage />} />
-
             <Route path="clientes" element={<ClientsPage />} />
             <Route path="clientes/:id" element={<ClientDetailPage />} />
+            <Route path="password" element={<PasswordPage />} />
+            {/* Ruta de desarrollo: Esta hay que eliminarla antes de que hagamos un deploy en produccion */}
+            <Route path="seed" element={<SeedPage />} />
           </Route>
 
           {/* Rutas del panel de la Empresa */}

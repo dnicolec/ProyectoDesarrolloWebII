@@ -1,11 +1,9 @@
 import {
     collection,
     doc,
-    addDoc,
     getDoc,
     getDocs,
     updateDoc,
-    deleteDoc,
     query,
     where,
     orderBy,
@@ -13,75 +11,43 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
-// Crear un nuevo empleado vinculado a una empresa
-export const crearEmpleado = async (empresaId, { nombre, apellido, correo }) => {
-    try {
-        // Validar campos requeridos
-        if (!empresaId) throw new Error('El empresaId es requerido');
-        if (!nombre) throw new Error('El nombre es requerido');
-        if (!apellido) throw new Error('El apellido es requerido');
-        if (!correo) throw new Error('El correo es requerido');
-
-        const empleadosRef = collection(db, 'empleados');
-
-        const nuevoEmpleado = await addDoc(empleadosRef, {
-            nombre,
-            apellido,
-            correo,
-            empresaId,
-            estado: 'activo',
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-        });
-
-        console.log(`Empleado ${nombre} ${apellido} creado con ID: ${nuevoEmpleado.id}`);
-        return { success: true, empleadoId: nuevoEmpleado.id };
-    } catch (error) {
-        console.error('Error creando empleado:', error);
-        throw error;
-    }
-};
-
 // Obtener todos los empleados de una empresa, ordenados por apellido
 export const obtenerEmpleadosPorEmpresa = async (empresaId) => {
     try {
-        const empleadosRef = collection(db, 'empleados');
+        const usuariosRef = collection(db, 'usuarios');
 
-        // Filtrar por empresa y ordenar alfabéticamente por apellido
         const consulta = query(
-            empleadosRef,
+            usuariosRef,
+            where('role', '==', 'empleado'),
             where('empresaId', '==', empresaId),
             orderBy('apellido', 'asc')
         );
 
         const snapshot = await getDocs(consulta);
 
-        const empleados = snapshot.docs.map((empleadoDoc) => ({
-            id: empleadoDoc.id,
-            ...empleadoDoc.data()
+        return snapshot.docs.map((d) => ({
+            id: d.id,
+            ...d.data()
         }));
-
-        return empleados;
     } catch (error) {
         console.error('Error obteniendo empleados:', error);
         throw error;
     }
 };
 
-// Obtener un empleado por su ID
-export const obtenerEmpleado = async (empleadoId) => {
+// Obtener un empleado por su UID
+export const obtenerEmpleado = async (uid) => {
     try {
-        const empleadoRef = doc(db, 'empleados', empleadoId);
-        const empleadoSnap = await getDoc(empleadoRef);
+        const usuarioRef = doc(db, 'usuarios', uid);
+        const usuarioSnap = await getDoc(usuarioRef);
 
-        // Lanzar error si el documento no existe
-        if (!empleadoSnap.exists()) {
-            throw new Error(`Empleado con ID ${empleadoId} no encontrado`);
+        if (!usuarioSnap.exists()) {
+            throw new Error(`Empleado con UID ${uid} no encontrado`);
         }
 
         return {
-            id: empleadoSnap.id,
-            ...empleadoSnap.data()
+            id: usuarioSnap.id,
+            ...usuarioSnap.data()
         };
     } catch (error) {
         console.error('Error obteniendo empleado:', error);
@@ -89,13 +55,12 @@ export const obtenerEmpleado = async (empleadoId) => {
     }
 };
 
-// Actualizar datos de un empleado
-export const actualizarEmpleado = async (empleadoId, updates) => {
+// Actualizar datos de un empleado (nombre, apellido, correo)
+export const actualizarEmpleado = async (uid, updates) => {
     try {
-        const empleadoRef = doc(db, 'empleados', empleadoId);
+        const usuarioRef = doc(db, 'usuarios', uid);
 
-        // Campos permitidos para actualizar
-        const camposPermitidos = ['nombre', 'apellido', 'correo', 'estado'];
+        const camposPermitidos = ['nombre', 'apellido', 'correo'];
         const datosActualizados = {};
 
         camposPermitidos.forEach((campo) => {
@@ -104,12 +69,11 @@ export const actualizarEmpleado = async (empleadoId, updates) => {
             }
         });
 
-        await updateDoc(empleadoRef, {
+        await updateDoc(usuarioRef, {
             ...datosActualizados,
             updatedAt: serverTimestamp()
         });
 
-        console.log(`Empleado ${empleadoId} actualizado`);
         return { success: true };
     } catch (error) {
         console.error('Error actualizando empleado:', error);
@@ -117,17 +81,20 @@ export const actualizarEmpleado = async (empleadoId, updates) => {
     }
 };
 
-// Eliminar un empleado por su ID
-export const eliminarEmpleado = async (empleadoId) => {
+// Desactivar un empleado (soft delete - cambia role a empleado_inactivo)
+export const eliminarEmpleado = async (uid) => {
     try {
-        const empleadoRef = doc(db, 'empleados', empleadoId);
+        const usuarioRef = doc(db, 'usuarios', uid);
 
-        await deleteDoc(empleadoRef);
+        await updateDoc(usuarioRef, {
+            activo: false,
+            role: 'empleado_inactivo',
+            updatedAt: serverTimestamp()
+        });
 
-        console.log(`Empleado ${empleadoId} eliminado`);
         return { success: true };
     } catch (error) {
-        console.error('Error eliminando empleado:', error);
+        console.error('Error desactivando empleado:', error);
         throw error;
     }
 };

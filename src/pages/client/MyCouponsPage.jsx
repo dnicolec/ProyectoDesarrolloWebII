@@ -43,7 +43,7 @@ const MyCouponsPage = ({ user }) => {
           category: cupon.oferta?.rubro ?? null,
           companyName: cupon.oferta?.empresa?.nombre ?? "N/A",
           endDate: fechaFin,
-          imageUrl: null,
+          imageUrl: cupon.oferta?.empresa?.logo ?? null,
           codigo: cupon.codigo,
           oferta_id: cupon.oferta_id,
           asignadoEn: cupon.asignadoEn,
@@ -123,7 +123,7 @@ const MyCouponsPage = ({ user }) => {
         {error && <Alert type="error" title="Error" description={error} />}
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
             {[1, 2, 3].map((i) => (
               <CouponCardLoader key={i} />
             ))}
@@ -134,7 +134,7 @@ const MyCouponsPage = ({ user }) => {
             <p className="text-navy/40">Inicia sesión para ver tus cupones</p>
           </div>
         ) : filteredCoupons.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
             {filteredCoupons.map((coupon) => (
               <CouponCard key={coupon.id} coupon={coupon} />
             ))}

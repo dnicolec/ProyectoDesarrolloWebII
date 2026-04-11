@@ -63,7 +63,7 @@ export const obtenerOfertasAprobadas = async () => {
 
 // Obtener oferta por ID
 //  de cupones NO necesitamos consultar la colección cupones
-// para saber disponibles — basta con cantidadCupones - cuponesGenerados
+// para saber disponibles - basta con cantidadCupones - cuponesGenerados
 export const obtenerOfertaPorId = async (ofertaId) => {
     try {
         const ofertaRef = doc(db, 'ofertas', ofertaId);

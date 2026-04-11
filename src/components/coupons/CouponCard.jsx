@@ -51,17 +51,15 @@ const CouponCard = ({ coupon }) => {
                  hover:border-transparent group"
     >
       {/* Image */}
-      <div className="relative h-36 sm:h-44 overflow-hidden">
+      <div className={`relative h-28 sm:h-32 overflow-hidden ${coupon.imageUrl ? 'bg-white' : `bg-gradient-to-br ${gradient}`}`}>
         {coupon.imageUrl ? (
           <img
             src={coupon.imageUrl}
             alt={coupon.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div
-            className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}
-          >
+          <div className="w-full h-full flex items-center justify-center">
             <Icon className="text-white/90" />
           </div>
         )}

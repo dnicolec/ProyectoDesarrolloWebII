@@ -1,0 +1,22 @@
+# Normalizar line endings a LF en el repo para todos los archivos de texto
+* text=auto eol=lf
+
+# Archivos que siempre deben ser LF
+*.js    text eol=lf
+*.jsx   text eol=lf
+*.ts    text eol=lf
+*.tsx   text eol=lf
+*.json  text eol=lf
+*.css   text eol=lf
+*.html  text eol=lf
+*.md    text eol=lf
+*.rules text eol=lf
+
+# Binarios — no tocar
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary

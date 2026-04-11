@@ -235,7 +235,7 @@ export default function OfferModal({ oferta, empresaId, onClose, onGuardado }) {
           onChange={handleChange('cantidadCupones')}
           error={errores.cantidadCupones}
           placeholder="Dejar vacío si no hay límite"
-          hint="Opcional — dejar vacío si no deseas limitar"
+          hint="Opcional - dejar vacío si no deseas limitar"
         />
 
         <div>
