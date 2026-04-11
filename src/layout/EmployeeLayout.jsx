@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { auth, db } from "../lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 
 const navItems = [
   {
@@ -28,24 +28,23 @@ export default function EmployeeLayout({ user }) {
   const [verificando, setVerificando] = useState(true);
 
   useEffect(() => {
-    const verificarSeguridad = async () => {
-      if (user?.uid) {
-        try {
-          const userRef = doc(db, "usuarios", user.uid);
-          const docSnap = await getDoc(userRef);
+    if (!user?.uid) {
+      setVerificando(false);
+      return;
+    }
 
-          if (docSnap.exists() && docSnap.data().mustChangePass === true) {
-            setMustChange(true);
-          } else {
-            setMustChange(false);
-          }
-        } catch (error) {
-          console.error("Error verificando seguridad:", error);
-        }
+    const userRef = doc(db, "usuarios", user.uid);
+
+    const unsubscribe = onSnapshot(userRef, (docSnap) => {
+      if (docSnap.exists() && docSnap.data().mustChangePass === true) {
+        setMustChange(true);
+      } else {
+        setMustChange(false);
       }
       setVerificando(false);
-    };
-    verificarSeguridad();
+    });
+
+    return () => unsubscribe();
   }, [user]);
 
   const handleLogout = async () => {

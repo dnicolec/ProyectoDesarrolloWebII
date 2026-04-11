@@ -1,40 +1,96 @@
-import { useState } from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { auth } from '../lib/firebase';
+import { useEffect, useState } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { auth, db } from "../lib/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
 
 const navItems = [
   {
-    section: 'Mi empresa',
+    section: "Mi empresa",
     items: [
-      { label: 'Ofertas', path: '/empresa/ofertas', dot: 'coral' },
-      { label: 'Empleados', path: '/empresa/empleados', dot: 'teal' },
+      { label: "Ofertas", path: "/empresa/ofertas", dot: "coral" },
+      { label: "Empleados", path: "/empresa/empleados", dot: "teal" },
     ],
   },
   {
-    section: 'Cuenta',
-    items: [
-      { label: 'Cambiar contraseña', path: '/password', dot: 'sage' },
-  ],
-  }
+    section: "Cuenta",
+    items: [{ label: "Cambiar contraseña", path: "/password", dot: "sage" }],
+  },
 ];
 
 const dotColors = {
-  coral: 'bg-coral',
-  teal: 'bg-teal',
+  coral: "bg-coral",
+  teal: "bg-teal",
 };
 
 export default function CompanyLayout({ user }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mustChange, setMustChange] = useState(false);
+  const [verificando, setVerificando] = useState(true);
+
+  useEffect(() => {
+    if (!user?.uid) {
+      setVerificando(false);
+      return;
+    }
+
+    const userRef = doc(db, "usuarios", user.uid);
+
+    const unsubscribe = onSnapshot(userRef, (docSnap) => {
+      if (docSnap.exists() && docSnap.data().mustChangePass === true) {
+        setMustChange(true);
+      } else {
+        setMustChange(false);
+      }
+      setVerificando(false);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
 
   const handleLogout = async () => {
     await auth.signOut();
-    navigate('/login');
+    navigate("/login");
   };
 
-  const displayName = user?.displayName || user?.email?.split('@')[0] || 'Empresa';
+  const displayName =
+    user?.displayName || user?.email?.split("@")[0] || "Empresa";
   const initials = displayName.slice(0, 2).toUpperCase();
+
+  if (verificando) {
+    return (
+      <div className="min-h-screen bg-cream-bg flex items-center justify-center font-bold text-navy/50">
+        Verificando credenciales...
+      </div>
+    );
+  }
+
+  if (mustChange) {
+    if (!location.pathname.includes("/password")) {
+      return (
+        <div className="min-h-screen bg-cream-bg flex items-center justify-center p-4">
+          <div className="bg-white border border-cream p-8 rounded-2xl shadow-sm max-w-md text-center animate-slide-up">
+            <h2 className="text-2xl font-serif font-bold text-navy">
+              Seguridad requerida
+            </h2>
+            <p className="text-navy/50 mt-2 mb-6">
+              Por seguridad, debes cambiar tu contraseña temporal antes de
+              entrar al panel de tu empresa.
+            </p>
+            <Link
+              to="/empresa/password"
+              className="block w-full bg-teal text-white py-3 rounded-xl font-bold hover:bg-teal-dark transition-colors"
+            >
+              Configurar nueva contraseña
+            </Link>
+          </div>
+        </div>
+      );
+    } else {
+      return <Outlet />;
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-cream-bg font-sans">
@@ -45,7 +101,14 @@ export default function CompanyLayout({ user }) {
             className="sm:hidden p-1.5 rounded-lg hover:bg-cream-light text-navy/60"
             onClick={() => setMenuOpen(!menuOpen)}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <line x1="3" y1="6" x2="21" y2="6" />
               <line x1="3" y1="12" x2="21" y2="12" />
               <line x1="3" y1="18" x2="21" y2="18" />
@@ -53,7 +116,7 @@ export default function CompanyLayout({ user }) {
           </button>
           <Link to="/empresa/ofertas" className="flex items-center gap-1">
             <span className="text-lg font-serif font-extrabold">
-              <span className="text-coral">La</span>{' '}
+              <span className="text-coral">La</span>{" "}
               <span className="text-teal">Cuponera</span>
             </span>
             <span className="hidden sm:inline text-[11px] font-sans font-medium text-navy/40 ml-1 mt-0.5">
@@ -67,7 +130,9 @@ export default function CompanyLayout({ user }) {
             <div className="w-6 h-6 rounded-full bg-coral text-white text-[11px] font-semibold flex items-center justify-center flex-shrink-0">
               {initials}
             </div>
-            <span className="text-xs font-medium text-navy hidden sm:block">{displayName}</span>
+            <span className="text-xs font-medium text-navy hidden sm:block">
+              {displayName}
+            </span>
           </div>
           <button
             onClick={handleLogout}
@@ -94,12 +159,15 @@ export default function CompanyLayout({ user }) {
                       key={item.path}
                       to={item.path}
                       className={`flex items-center gap-2.5 px-4 py-2 text-[13px] font-medium transition-all border-l-2
-                        ${isActive
-                          ? 'text-white bg-white/8 border-coral opacity-100'
-                          : 'text-white/55 border-transparent hover:text-white/85 hover:bg-white/5'
+                        ${
+                          isActive
+                            ? "text-white bg-white/8 border-coral opacity-100"
+                            : "text-white/55 border-transparent hover:text-white/85 hover:bg-white/5"
                         }`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColors[item.dot]}`} />
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColors[item.dot]}`}
+                      />
                       {item.label}
                     </Link>
                   );
@@ -118,7 +186,7 @@ export default function CompanyLayout({ user }) {
             <div className="w-52 bg-navy flex flex-col">
               <div className="h-14 flex items-center px-4 border-b border-white/10">
                 <span className="text-base font-serif font-extrabold">
-                  <span className="text-coral">La</span>{' '}
+                  <span className="text-coral">La</span>{" "}
                   <span className="text-teal">Cuponera</span>
                 </span>
               </div>
@@ -136,12 +204,15 @@ export default function CompanyLayout({ user }) {
                           to={item.path}
                           onClick={() => setMenuOpen(false)}
                           className={`flex items-center gap-2.5 px-4 py-2 text-[13px] font-medium transition-all border-l-2
-                            ${isActive
-                              ? 'text-white bg-white/8 border-coral opacity-100'
-                              : 'text-white/55 border-transparent hover:text-white/85 hover:bg-white/5'
+                            ${
+                              isActive
+                                ? "text-white bg-white/8 border-coral opacity-100"
+                                : "text-white/55 border-transparent hover:text-white/85 hover:bg-white/5"
                             }`}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColors[item.dot]}`} />
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColors[item.dot]}`}
+                          />
                           {item.label}
                         </Link>
                       );
@@ -150,7 +221,10 @@ export default function CompanyLayout({ user }) {
                 ))}
               </nav>
             </div>
-            <div className="flex-1 bg-black/40" onClick={() => setMenuOpen(false)} />
+            <div
+              className="flex-1 bg-black/40"
+              onClick={() => setMenuOpen(false)}
+            />
           </div>
         )}
 

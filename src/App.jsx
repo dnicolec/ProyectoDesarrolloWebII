@@ -22,6 +22,7 @@ import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import VerifyPage from "./pages/auth/VerifyPage";
 import PasswordPage from "./pages/auth/PasswordPage";
+import ChangePassPage from "./pages/auth/ChangePassPage";
 
 // Client pages
 import MyCouponsPage from "./pages/client/MyCouponsPage";
@@ -43,7 +44,6 @@ import EmployeesPage from "./pages/company/EmployeesPage";
 
 // Employee pages
 import RedeemCouponsPage from "./pages/employee/RedeemCouponsPage";
-import ChangePassPage from "./pages/employee/ChangePassPage";
 
 // Dev pages (remove before production)
 import SeedPage from "./pages/dev/SeedPage";
@@ -61,7 +61,10 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen" style={{ backgroundColor: '#FDF6F0' }}>
+      <div
+        className="flex flex-col items-center justify-center min-h-screen"
+        style={{ backgroundColor: "#FDF6F0" }}
+      >
         <div className="text-center animate-fade-in">
           <h1 className="font-serif text-3xl font-extrabold">
             <span className="text-coral">La</span>{" "}
@@ -72,7 +75,10 @@ function App() {
               <span
                 key={i}
                 className="w-2.5 h-2.5 rounded-full bg-teal animate-bounce"
-                style={{ animationDelay: `${i * 0.18}s`, animationDuration: '0.9s' }}
+                style={{
+                  animationDelay: `${i * 0.18}s`,
+                  animationDuration: "0.9s",
+                }}
               />
             ))}
           </div>
@@ -123,7 +129,10 @@ function App() {
             <Route path="empresas" element={<CompaniesPage />} />
             <Route path="empresas/:id" element={<CompanyDetailPage />} />
             <Route path="rubros" element={<RubrosPage />} />
-            <Route path="ofertas/pendientes" element={<OfertasPendientesPage />} />
+            <Route
+              path="ofertas/pendientes"
+              element={<OfertasPendientesPage />}
+            />
             <Route path="clientes" element={<ClientsPage />} />
             <Route path="clientes/:id" element={<ClientDetailPage />} />
             <Route path="password" element={<PasswordPage />} />
@@ -143,6 +152,7 @@ function App() {
             <Route index element={<Navigate to="/empresa/ofertas" replace />} />
             <Route path="ofertas" element={<OffersPage />} />
             <Route path="empleados" element={<EmployeesPage />} />
+            <Route path="password" element={<ChangePassPage user={user} />} />
           </Route>
 
           {/* Rutas del panel de empleado */}

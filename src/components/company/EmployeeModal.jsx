@@ -1,8 +1,8 @@
 import { doc, setDoc, updateDoc, collection } from "firebase/firestore";
-import { db, firebaseConfig } from "../../lib/firebase";
+import app, { db, firebaseConfig } from "../../lib/firebase";
 import { useState } from "react";
 import { Modal, Input, Button, Alert } from "../../components/ui";
-import { initializeApp } from "firebase/app";
+import { getApp, getApps, initializeApp } from "firebase/app";
 import {
   createUserWithEmailAndPassword,
   getAuth,
@@ -10,7 +10,9 @@ import {
 } from "firebase/auth";
 
 // creamos conexión fantasma para poder crear los empleados y que se puedan registrar
-const appFantasma = initializeApp(firebaseConfig, "AppFantasma");
+const appFantasma = getApps().find((app) => app.name === "AppFantasma")
+  ? getApp("AppFantasma")
+  : initializeApp(firebaseConfig, "AppFantasma");
 const authFantasma = getAuth(appFantasma);
 
 export default function EmployeeModal({
@@ -44,11 +46,17 @@ export default function EmployeeModal({
       } else {
         // contraseña default
         const passwordTemporal = import.meta.env.VITE_DEFAULT_PASSWORD;
+
+        if (!passwordTemporal) {
+          throw new Error("Falta la contraseña por defecto en el archivo .env");
+        }
+
         const userCredential = await createUserWithEmailAndPassword(
           authFantasma,
           formData.correo,
           passwordTemporal,
         );
+
         const nuevoUid = userCredential.user.uid;
 
         await setDoc(doc(db, "usuarios", nuevoUid), {
