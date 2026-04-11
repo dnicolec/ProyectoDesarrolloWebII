@@ -18,6 +18,9 @@ export default function EmployeeModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // contraseña default
+  const password = import.meta.env.VITE_DEFAULT_PASSWORD;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -35,7 +38,7 @@ export default function EmployeeModal({
         const nuevoId = doc(collection(db, "usuarios")).id;
         const nuevoDoc = {
           ...formData,
-          password: "patito123",
+          password: password,
           role: "empleado",
           empresaId: empresaId,
           mustChangePass: true,
