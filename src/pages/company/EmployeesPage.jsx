@@ -6,18 +6,17 @@ import {
   query,
   where,
   getDocs,
-  deleteDoc,
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../../lib/firebase";
+import { obtenerEmpresaPorId } from "../../services/empresasService";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import EmployeeModal from "../../components/company/EmployeeModal";
 import { Alert } from "../../components/ui";
 
-export default function EmployeesPage({ user }) {
-  const { user: authUser } = useAuth();
-  const currentUser = user || authUser;
+export default function EmployeesPage() {
+  const { profile } = useAuth();
 
   const [empresa, setEmpresa] = useState(null);
   const [empleados, setEmpleados] = useState([]);
@@ -27,18 +26,13 @@ export default function EmployeesPage({ user }) {
   const [empleadoEditar, setEmpleadoEditar] = useState(null);
   const [empleadoEliminar, setEmpleadoEliminar] = useState(null);
 
-  // Empresa de acurdo al email del usuario autenticado
+  // Empresa de acuerdo al empresaId del perfil del usuario autenticado
   const cargarDatos = async () => {
     try {
-      const q = query(
-        collection(db, "empresas"),
-        where("email", "==", currentUser.email),
-      );
-      const snap = await getDocs(q);
+      const empresaId = profile?.empresaId;
+      if (!empresaId) throw new Error("No se encontró la empresa");
 
-      if (snap.empty) throw new Error("No se encontró la empresa");
-
-      const empData = { id: snap.docs[0].id, ...snap.docs[0].data() };
+      const empData = await obtenerEmpresaPorId(empresaId);
       setEmpresa(empData);
 
       const qEmployee = query(
@@ -61,8 +55,8 @@ export default function EmployeesPage({ user }) {
   };
 
   useEffect(() => {
-    if (currentUser?.email) cargarDatos();
-  }, [currentUser?.email]);
+    if (profile?.empresaId) cargarDatos();
+  }, [profile?.empresaId]);
 
   const handleEliminar = async () => {
     if (!empleadoEliminar) return;

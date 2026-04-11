@@ -141,8 +141,8 @@ function App() {
             }
           >
             <Route index element={<Navigate to="/empresa/ofertas" replace />} />
-            <Route path="ofertas" element={<OffersPage user={user} />} />
-            <Route path="empleados" element={<EmployeesPage user={user} />} />
+            <Route path="ofertas" element={<OffersPage />} />
+            <Route path="empleados" element={<EmployeesPage />} />
           </Route>
 
           {/* Rutas del panel de empleado */}

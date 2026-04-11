@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { obtenerOfertasPorEmpresa, actualizarOferta} from '../../services/ofertasService';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
+import { obtenerEmpresaPorId } from '../../services/empresasService';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import OfferModal from '../../components/company/OfferModal';
@@ -26,14 +25,23 @@ const TABS = [
   { key: 'descartada', label: 'Descartadas'},
 ];
 
+// Normaliza fecha a string 'YYYY-MM-DD' sin importar si viene como string, Date o Firestore Timestamp
+const toDateStr = (f) => {
+  if (!f) return null;
+  if (typeof f === 'string') return f;
+  if (typeof f.toDate === 'function') return f.toDate().toISOString().split('T')[0];
+  if (f instanceof Date) return f.toISOString().split('T')[0];
+  return String(f);
+};
+
 // Estado según fechas
 const getEstadoReal = (oferta) => {
   if (['rechazada', 'descartada', 'en_espera'].includes(oferta.estado)) return oferta.estado;
   if (oferta.estado === 'aprobada' || oferta.estado === 'activa') {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
-    const inicio = new Date(oferta.fecha_inicio + 'T00:00:00');
-    const fin = new Date(oferta.fecha_fin + 'T23:59:59');
+    const inicio = new Date((toDateStr(oferta.fecha_inicio) || '') + 'T00:00:00');
+    const fin = new Date((toDateStr(oferta.fecha_fin) || '') + 'T23:59:59');
     if (hoy < inicio) return 'aprobada';
     if (hoy >= inicio && hoy <= fin) return 'activa';
     if (hoy > fin) return 'pasada';
@@ -42,17 +50,17 @@ const getEstadoReal = (oferta) => {
 };
 
 const formatFecha = (f) => {
-  if (!f) return '-';
-  const [year, month, day] = f.split('-');
+  const str = toDateStr(f);
+  if (!str) return '-';
+  const [year, month, day] = str.split('-');
   return new Date(year, month - 1, day).toLocaleDateString('es-SV', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
 const formatMonto = (n) =>
   n != null ? `$${Number(n).toFixed(2)}` : '-';
 
-export default function OffersPage({ user }) {
-  const { user: authUser } = useAuth();
-  const currentUser = user || authUser;
+export default function OffersPage() {
+  const { profile } = useAuth();
 
   const [empresa, setEmpresa] = useState(null);
   const [ofertas, setOfertas] = useState([]);
@@ -64,15 +72,14 @@ export default function OffersPage({ user }) {
   const [ofertaDescartar, setOfertaDescartar] = useState(null);
   const [descartando, setDescartando] = useState(false);
 
-  // Empresa de acurdo al email del usuario autenticado
+  // Empresa de acuerdo al empresaId del perfil del usuario autenticado
   const cargarEmpresa = async () => {
     try {
-      const q = query(collection(db, 'empresas'), where('email', '==', currentUser.email));
-      const snap = await getDocs(q);
-      if (snap.empty) throw new Error('No se encontró empresa para este usuario');
-      const doc = snap.docs[0];
-      setEmpresa({ id: doc.id, ...doc.data() });
-      return { id: doc.id, ...doc.data() };
+      const empresaId = profile?.empresaId;
+      if (!empresaId) throw new Error('No se encontró empresa para este usuario');
+      const emp = await obtenerEmpresaPorId(empresaId);
+      setEmpresa(emp);
+      return emp;
     } catch (e) {
       setError(e.message);
       return null;
@@ -94,7 +101,7 @@ export default function OffersPage({ user }) {
     }
   };
 
-  useEffect(() => { cargar(); }, [currentUser?.email]);
+  useEffect(() => { cargar(); }, [profile?.empresaId]);
 
   // Filtrar por tab con estado real
   const ofertasFiltradas = ofertas.filter((o) => getEstadoReal(o) === tabActiva);
