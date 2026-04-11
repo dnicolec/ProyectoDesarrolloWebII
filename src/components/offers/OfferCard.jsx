@@ -56,7 +56,7 @@ const OfferCard = ({ offer }) => {
   return (
     <div
       onClick={() => navigate(`/offer/${offer.id}`)}
-      className="relative bg-white rounded-2xl border border-cream overflow-hidden cursor-pointer
+      className="relative h-full flex flex-col bg-white rounded-2xl border border-cream overflow-hidden cursor-pointer
                  hover:shadow-xl hover:shadow-navy/[0.08] hover:-translate-y-2
                  transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]
                  hover:border-sage/20 group"
@@ -67,7 +67,7 @@ const OfferCard = ({ offer }) => {
           <img
             src={logoUrl}
             alt={offer.empresa?.nombre || 'Empresa'}
-            className="w-full h-full object-contain p-3"
+            className="w-full h-full object-cover"
             onError={() => setImgError(true)}
           />
         ) : (
@@ -97,8 +97,8 @@ const OfferCard = ({ offer }) => {
       </div>
 
       {/* Body */}
-      <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-1">
-        <Badge variant="cream">{offer.empresa?.nombre || 'Empresa'}</Badge>
+      <div className="flex-1 flex flex-col px-3 sm:px-4 pb-3 sm:pb-4 pt-1">
+        <Badge variant="cream" className="self-start">{offer.empresa?.nombre || 'Empresa'}</Badge>
 
         <h3 className="font-serif font-bold text-base sm:text-[1.1rem] text-navy mt-1.5 leading-snug line-clamp-2">
           {offer.titulo}
@@ -119,7 +119,7 @@ const OfferCard = ({ offer }) => {
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-cream relative">
+        <div className="flex items-center justify-between mt-auto pt-2 sm:pt-3 border-t border-cream relative">
           <div className="flex items-center gap-2">
             <span className="text-[0.7rem] sm:text-xs text-navy/40 truncate">
               {offer.empresa?.nombre || 'Empresa'}

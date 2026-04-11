@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button, Alert } from "../../components/ui";
 import CouponCard from "../../components/coupons/CouponCard";
+import AnimateOnScroll from "../../components/ui/AnimateOnScroll";
 import TagIcon from "../../components/ui/icons/TagIcon";
 import { obtenerCuponesUsuario } from "../../services/cuponesService";
 import CouponCardLoader from "../../components/coupons/CouponCardLoader";
@@ -136,7 +137,9 @@ const MyCouponsPage = ({ user }) => {
         ) : filteredCoupons.length > 0 ? (
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
             {filteredCoupons.map((coupon) => (
-              <CouponCard key={coupon.id} coupon={coupon} />
+              <AnimateOnScroll key={coupon.id}>
+                <CouponCard coupon={coupon} />
+              </AnimateOnScroll>
             ))}
           </div>
         ) : (

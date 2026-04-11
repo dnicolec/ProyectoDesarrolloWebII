@@ -169,7 +169,7 @@ const OfferDetailPage = ({ user }) => {
               <img
                 src={offer.empresa.logo}
                 alt={offer.empresa?.nombre || 'Empresa'}
-                className="w-full h-full object-contain p-8"
+                className="w-full h-full object-cover"
                 onError={() => setImgError(true)}
               />
             ) : (
