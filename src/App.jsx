@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState } from "react";
 import { useAuth } from "./context/AuthContext";
 import { authService } from "./services/authService";
 import RoleRoute from "./routes/RoleRoute";
@@ -47,44 +48,26 @@ import RedeemCouponsPage from "./pages/employee/RedeemCouponsPage";
 
 // Dev pages (remove before production)
 import SeedPage from "./pages/dev/SeedPage";
+import Loading from "./components/ui/loading";
 
 function App() {
   const { user, loading } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     try {
       await authService.logout();
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div
-        className="flex flex-col items-center justify-center min-h-screen"
-        style={{ backgroundColor: "#FDF6F0" }}
-      >
-        <div className="text-center animate-fade-in">
-          <h1 className="font-serif text-3xl font-extrabold">
-            <span className="text-coral">La</span>{" "}
-            <span className="text-teal">Cuponera</span>
-          </h1>
-          <div className="flex items-center justify-center gap-2 mt-5">
-            {[0, 1, 2].map((i) => (
-              <span
-                key={i}
-                className="w-2.5 h-2.5 rounded-full bg-teal animate-bounce"
-                style={{
-                  animationDelay: `${i * 0.18}s`,
-                  animationDuration: "0.9s",
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+  if (loading || isLoggingOut) {
+    return <Loading />;
   }
 
   return (
@@ -121,7 +104,7 @@ function App() {
             path="/admin"
             element={
               <RoleRoute allowedRoles={[ROLES.ADMIN_CUPONERA]}>
-                <AdminLayout user={user} />
+                <AdminLayout user={user} onLogout={handleLogout} />
               </RoleRoute>
             }
           >
@@ -145,14 +128,17 @@ function App() {
             path="/empresa"
             element={
               <RoleRoute allowedRoles={[ROLES.ADMIN_EMPRESA]}>
-                <CompanyLayout user={user} />
+                <CompanyLayout user={user} onLogout={handleLogout} />
               </RoleRoute>
             }
           >
             <Route index element={<Navigate to="/empresa/ofertas" replace />} />
             <Route path="ofertas" element={<OffersPage />} />
             <Route path="empleados" element={<EmployeesPage />} />
-            <Route path="password" element={<ChangePassPage user={user} />} />
+            <Route
+              path="password"
+              element={<ChangePassPage user={user} onLogout={handleLogout} />}
+            />
           </Route>
 
           {/* Rutas del panel de empleado */}
@@ -160,12 +146,15 @@ function App() {
             path="/empleado"
             element={
               <RoleRoute allowedRoles={[ROLES.EMPLEADO]}>
-                <EmployeeLayout user={user} />
+                <EmployeeLayout user={user} onLogout={handleLogout} />
               </RoleRoute>
             }
           >
             <Route index element={<RedeemCouponsPage user={user} />} />
-            <Route path="password" element={<ChangePassPage user={user} />} />
+            <Route
+              path="password"
+              element={<ChangePassPage user={user} onLogout={handleLogout} />}
+            />
           </Route>
 
           {/* Rutas protegidas */}

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { auth, db } from "../lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
+import Loading from "../components/ui/loading";
 
 const navItems = [
   {
@@ -20,7 +21,7 @@ const dotColors = {
   sage: "bg-sage",
 };
 
-export default function EmployeeLayout({ user }) {
+export default function EmployeeLayout({ user, onLogout }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -47,21 +48,12 @@ export default function EmployeeLayout({ user }) {
     return () => unsubscribe();
   }, [user]);
 
-  const handleLogout = async () => {
-    await auth.signOut();
-    navigate("/login");
-  };
-
   const displayName =
     user?.displayName || user?.email?.split("@")[0] || "Empleado";
   const initials = displayName.slice(0, 2).toUpperCase();
 
   if (verificando) {
-    return (
-      <div className="min-h-screen bg-cream-bg flex items-center justify-center font-bold text-navy/50">
-        Verificando credenciales...
-      </div>
-    );
+    return <Loading />;
   }
 
   if (mustChange) {
@@ -97,7 +89,7 @@ export default function EmployeeLayout({ user }) {
               Configurar nueva contraseña
             </Link>
             <button
-              onClick={handleLogout}
+              onClick={onLogout}
               className="mt-4 text-sm text-navy/30 hover:text-coral font-medium"
             >
               Cerrar sesión
@@ -108,6 +100,10 @@ export default function EmployeeLayout({ user }) {
     } else {
       return <Outlet />;
     }
+  }
+
+  if (location.pathname.includes("/password")) {
+    return <Loading />;
   }
 
   return (
@@ -153,7 +149,7 @@ export default function EmployeeLayout({ user }) {
             </span>
           </div>
           <button
-            onClick={handleLogout}
+            onClick={onLogout}
             className="text-xs font-medium text-coral border border-cream rounded-lg px-3 py-1.5 hover:bg-coral/5 transition-colors"
           >
             Cerrar sesión

@@ -108,8 +108,10 @@ export default function EmployeesPage() {
           <p className="text-2xl font-bold text-teal">Canjeadores</p>
         </div>
         <div className="bg-white border border-cream rounded-xl p-4">
-          <p className="text-xs text-navy/45 font-medium mb-1">Empresa ID</p>
-          <p className="text-2xl font-bold text-coral">{empresa?.id || "-"}</p>
+          <p className="text-xs text-navy/45 font-medium mb-1">Empresa</p>
+          <p className="text-2xl font-bold text-coral">
+            {empresa?.nombre || "-"}
+          </p>
         </div>
       </div>
 

@@ -15,6 +15,7 @@ import Input from "../../components/ui/Input";
 import Alert from "../../components/ui/Alert";
 import EyeIcon from "../../components/ui/icons/EyeIcon";
 import EyeOffIcon from "../../components/ui/icons/EyeOffIcon";
+import Loading from "../../components/ui/loading";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -22,6 +23,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -47,6 +49,7 @@ const LoginPage = () => {
         throw new Error("Por favor completa todos los campos");
       }
 
+      setIsLoggingIn(true);
       const cred = await signInWithEmailAndPassword(auth, email, password);
       //await blockIfNotVerified(cred.user);
 
@@ -72,7 +75,7 @@ const LoginPage = () => {
       navigate(location.state?.from || ruta, { replace: true });
     } catch (err) {
       console.error(err);
-      let mensaje = err.message;
+      let mensaje = "Ocurrió un error";
 
       if (err.code === "auth/invalid-credential") {
         mensaje = "Email o contraseña incorrectos";
@@ -80,9 +83,12 @@ const LoginPage = () => {
         mensaje = "Usuario no registrado";
       } else if (err.code === "auth/too-many-requests") {
         mensaje = "Demasiados intentos. Intenta más tarde";
+      } else if (err.message) {
+        mensaje = err.message;
       }
 
       setError(mensaje);
+      setIsLoggingIn(false);
     } finally {
       setLoading(false);
     }
@@ -117,6 +123,7 @@ const LoginPage = () => {
     }
   };
 
+  if (isLoggingIn) return <Loading />;
   return (
     <div className="container-app py-10 max-w-md mx-auto">
       <h1 className="text-2xl font-semibold">Iniciar sesión</h1>

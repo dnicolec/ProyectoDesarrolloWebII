@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, Input } from "../../components/ui";
 import { auth, db } from "../../lib/firebase";
 
-export default function ChangePassPage() {
+export default function ChangePassPage({ onLogout }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -35,28 +35,25 @@ export default function ChangePassPage() {
     try {
       const currentUser = auth.currentUser;
       if (!currentUser) throw new Error("No hay sesión activa");
-      await updatePassword(currentUser, passwords.nueva);
-      const userRef = doc(db, "usuarios", currentUser.uid);
-      await updateDoc(userRef, {
-        mustChangePass: false,
-      });
-      setSuccess(true);
 
-      await updateDoc(userRef, {
-        mustChangePass: false,
-      });
+      await updatePassword(currentUser, passwords.nueva);
+
+      const userRef = doc(db, "usuarios", currentUser.uid);
 
       const userSnap = await getDoc(userRef);
       const userRole = userSnap.data().role;
-
       const rutaDestino =
         userRole === "admin_empresa" ? "/empresa" : "/empleado";
 
       setSuccess(true);
 
-      setTimeout(() => {
+      setTimeout(async () => {
+        await updateDoc(userRef, {
+          mustChangePass: false,
+        });
+
         navigate(rutaDestino, { replace: true });
-      }, 2000);
+      }, 1500);
     } catch (error) {
       console.error(error);
 
@@ -146,6 +143,17 @@ export default function ChangePassPage() {
               Guardar y continuar
             </Button>
           </form>
+        )}
+        {!success && onLogout && (
+          <div className="mt-6 text-center">
+            <button
+              onClick={onLogout}
+              type="button"
+              className="text-sm font-medium text-navy/40 hover:text-coral transition-colors"
+            >
+              Cerrar sesión
+            </button>
+          </div>
         )}
       </div>
     </div>

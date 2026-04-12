@@ -1,50 +1,46 @@
-import { useState } from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { auth } from '../lib/firebase';
+import { useState } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { auth } from "../lib/firebase";
 
 const isDev = import.meta.env.DEV;
 
 const navItems = [
   {
-    section: 'General',
+    section: "General",
     items: [
-      { label: 'Empresas', path: '/admin/empresas', dot: 'coral' },
-      { label: 'Clientes', path: '/admin/clientes', dot: 'teal' },
-      { label: 'Rubros', path: '/admin/rubros', dot: 'sage' },
+      { label: "Empresas", path: "/admin/empresas", dot: "coral" },
+      { label: "Clientes", path: "/admin/clientes", dot: "teal" },
+      { label: "Rubros", path: "/admin/rubros", dot: "sage" },
     ],
   },
   {
-    section: 'Ofertas',
+    section: "Ofertas",
     items: [
-      { label: 'Por aprobar', path: '/admin/ofertas/pendientes', dot: 'cream' },
+      { label: "Por aprobar", path: "/admin/ofertas/pendientes", dot: "cream" },
     ],
   },
   {
-    section: 'Cuenta',
+    section: "Cuenta",
     items: [
-      { label: 'Cambiar contraseña', path: '/admin/password', dot: 'sage' },
+      { label: "Cambiar contraseña", path: "/admin/password", dot: "sage" },
     ],
-  }
+  },
 ];
 
 const dotColors = {
-  coral: 'bg-coral',
-  teal: 'bg-teal',
-  sage: 'bg-sage',
-  cream: 'bg-cream',
+  coral: "bg-coral",
+  teal: "bg-teal",
+  sage: "bg-sage",
+  cream: "bg-cream",
 };
 
-export default function AdminLayout({ user }) {
+export default function AdminLayout({ user, onLogout }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleLogout = async () => {
-    await auth.signOut();
-    navigate('/login');
-  };
-
-  const displayName = user?.displayName || user?.email?.split('@')[0] || 'Admin';
+  const displayName =
+    user?.displayName || user?.email?.split("@")[0] || "Admin";
   const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
@@ -57,7 +53,14 @@ export default function AdminLayout({ user }) {
             className="sm:hidden p-1.5 rounded-lg hover:bg-cream-light text-navy/60"
             onClick={() => setMenuOpen(!menuOpen)}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <line x1="3" y1="6" x2="21" y2="6" />
               <line x1="3" y1="12" x2="21" y2="12" />
               <line x1="3" y1="18" x2="21" y2="18" />
@@ -65,7 +68,7 @@ export default function AdminLayout({ user }) {
           </button>
           <Link to="/admin/empresas" className="flex items-center gap-1">
             <span className="text-lg font-serif font-extrabold">
-              <span className="text-coral">La</span>{' '}
+              <span className="text-coral">La</span>{" "}
               <span className="text-teal">Cuponera</span>
             </span>
             <span className="hidden sm:inline text-[11px] font-sans font-medium text-navy/40 ml-1 mt-0.5">
@@ -79,10 +82,12 @@ export default function AdminLayout({ user }) {
             <div className="w-6 h-6 rounded-full bg-teal text-white text-[11px] font-semibold flex items-center justify-center flex-shrink-0">
               {initials}
             </div>
-            <span className="text-xs font-medium text-navy hidden sm:block">{displayName}</span>
+            <span className="text-xs font-medium text-navy hidden sm:block">
+              {displayName}
+            </span>
           </div>
           <button
-            onClick={handleLogout}
+            onClick={onLogout}
             className="text-xs font-medium text-coral border border-cream rounded-lg px-3 py-1.5 hover:bg-coral/5 transition-colors"
           >
             Cerrar sesión
@@ -93,7 +98,9 @@ export default function AdminLayout({ user }) {
       {/* Dev mode banner */}
       {isDev && (
         <div className="bg-yellow-400 text-yellow-900 text-[11px] font-semibold text-center py-1 px-4 flex items-center justify-center gap-2 flex-shrink-0">
-          <span>ENTORNO DE SUPER DUPER DESARROLLO - los datos son de prueba</span>
+          <span>
+            ENTORNO DE SUPER DUPER DESARROLLO - los datos son de prueba
+          </span>
           <Link
             to="/admin/seed"
             className="underline font-bold hover:text-yellow-950 transition-colors"
@@ -119,12 +126,15 @@ export default function AdminLayout({ user }) {
                       key={item.path}
                       to={item.path}
                       className={`flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium transition-all border-l-2
-                        ${isActive
-                          ? 'text-white bg-white/10 border-coral'
-                          : 'text-white/65 border-transparent hover:text-white hover:bg-white/6'
+                        ${
+                          isActive
+                            ? "text-white bg-white/10 border-coral"
+                            : "text-white/65 border-transparent hover:text-white hover:bg-white/6"
                         }`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColors[item.dot]}`} />
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColors[item.dot]}`}
+                      />
                       {item.label}
                     </Link>
                   );
@@ -141,9 +151,10 @@ export default function AdminLayout({ user }) {
                 <Link
                   to="/admin/seed"
                   className={`flex items-center gap-2.5 px-4 py-2 text-[13px] font-medium transition-all border-l-2
-                    ${location.pathname === '/admin/seed'
-                      ? 'text-yellow-300 bg-yellow-400/10 border-yellow-400'
-                      : 'text-yellow-400/60 border-transparent hover:text-yellow-300 hover:bg-yellow-400/5'
+                    ${
+                      location.pathname === "/admin/seed"
+                        ? "text-yellow-300 bg-yellow-400/10 border-yellow-400"
+                        : "text-yellow-400/60 border-transparent hover:text-yellow-300 hover:bg-yellow-400/5"
                     }`}
                 >
                   <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-yellow-400" />
@@ -157,7 +168,14 @@ export default function AdminLayout({ user }) {
               to="/"
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-medium text-white/60 hover:text-white hover:bg-white/8 transition-all"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <polyline points="15 18 9 12 15 6" />
               </svg>
               Ver sitio público
@@ -171,7 +189,7 @@ export default function AdminLayout({ user }) {
             <div className="w-52 bg-navy flex flex-col">
               <div className="h-14 flex items-center px-4 border-b border-white/10">
                 <span className="text-base font-serif font-extrabold">
-                  <span className="text-coral">La</span>{' '}
+                  <span className="text-coral">La</span>{" "}
                   <span className="text-teal">Cuponera</span>
                 </span>
               </div>
@@ -189,12 +207,15 @@ export default function AdminLayout({ user }) {
                           to={item.path}
                           onClick={() => setMenuOpen(false)}
                           className={`flex items-center gap-2.5 px-4 py-2 text-[13px] font-medium transition-all border-l-2
-                            ${isActive
-                              ? 'text-white bg-white/8 border-coral opacity-100'
-                              : 'text-white/55 border-transparent hover:text-white/85 hover:bg-white/5'
+                            ${
+                              isActive
+                                ? "text-white bg-white/8 border-coral opacity-100"
+                                : "text-white/55 border-transparent hover:text-white/85 hover:bg-white/5"
                             }`}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColors[item.dot]}`} />
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColors[item.dot]}`}
+                          />
                           {item.label}
                         </Link>
                       );
@@ -212,9 +233,10 @@ export default function AdminLayout({ user }) {
                       to="/admin/seed"
                       onClick={() => setMenuOpen(false)}
                       className={`flex items-center gap-2.5 px-4 py-2 text-[13px] font-medium transition-all border-l-2
-                        ${location.pathname === '/admin/seed'
-                          ? 'text-yellow-300 bg-yellow-400/10 border-yellow-400'
-                          : 'text-yellow-400/60 border-transparent hover:text-yellow-300 hover:bg-yellow-400/5'
+                        ${
+                          location.pathname === "/admin/seed"
+                            ? "text-yellow-300 bg-yellow-400/10 border-yellow-400"
+                            : "text-yellow-400/60 border-transparent hover:text-yellow-300 hover:bg-yellow-400/5"
                         }`}
                     >
                       <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-yellow-400" />
@@ -224,7 +246,10 @@ export default function AdminLayout({ user }) {
                 )}
               </nav>
             </div>
-            <div className="flex-1 bg-black/40" onClick={() => setMenuOpen(false)} />
+            <div
+              className="flex-1 bg-black/40"
+              onClick={() => setMenuOpen(false)}
+            />
           </div>
         )}
 
